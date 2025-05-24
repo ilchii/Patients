@@ -1,0 +1,11 @@
+﻿<Window x:Class="Patients.DoctorStarterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Doctor Dashboard" Height="200" Width="400">
+    <Grid>
+        <TextBlock Text="Welcome, Doctor!" 
+                   HorizontalAlignment="Center" 
+                   VerticalAlignment="Center" 
+                   FontSize="20"/>
+    </Grid>
+</Window>
