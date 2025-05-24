@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Login" Height="200" Width="300">
     <StackPanel Margin="20">
-        <TextBlock Text="Username:" />
+        <TextBlock Text="UsernameChanged:" />
         <TextBox Name="UsernameBox" Margin="0,0,0,10"/>
 
         <TextBlock Text="Password:" />
