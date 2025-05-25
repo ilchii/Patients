@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Windows;
+using Patients.Data;
 using Patients.Models;
 
 namespace Patients
@@ -16,27 +17,25 @@ namespace Patients
             var username = UsernameBox.Text;
             var password = PasswordBox.Password;
 
-            var user = UserStore.Users.FirstOrDefault(u =>
-                u.Username == username &&
-                u.Password == password);
+            using var db = new AppDbContext();
+            var user = db.Users.FirstOrDefault(u =>
+                u.Username == username && u.Password == password);
 
             if (user != null)
             {
                 if (user.Role == "Receptionist")
                 {
-                    var recWindow = new ReceptionistStarterWindow();
-                    recWindow.Show();
+                    new ReceptionistStarterWindow().Show();
                 }
                 else if (user.Role == "Doctor")
                 {
-                    var docWindow = new DoctorStarterWindow();
-                    docWindow.Show();
+                    new DoctorStarterWindow().Show();
                 }
                 this.Close();
             }
             else
             {
-                MessageBox.Show("Invalid credentials. Try again.");
+                MessageBox.Show("Invalid credentials.");
             }
         }
     }

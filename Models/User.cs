@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Patients.Models
 {
     public class User
     {
+        [Key]
+        public int Id { get; set; }  // Required for EF
+
         public string Username { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; }   
-    }
-
-    public static class UserStore
-    {
-        public static List<User> Users = new List<User>
-        {
-            new User { Username = "reception1", Password = "pass123", Role = "Receptionist" },
-            new User { Username = "doctor1", Password = "docpass", Role = "Doctor" }
-        };
+        public string Role { get; set; }
     }
 }
