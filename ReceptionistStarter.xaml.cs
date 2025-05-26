@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Patients.Data;
@@ -18,6 +19,8 @@ namespace Patients
         private Border selectedCellBorder = null;
         private Doctor selectedDoctor;
         private DateTime? selectedAppointmentTime = null;
+        private Appointment selectedExistingAppointment = null;
+
 
         public ReceptionistStarterWindow()
         {
@@ -180,38 +183,65 @@ namespace Patients
             }
         }
 
-        private void CellBorder_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void CellBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (selectedDoctor == null) return;
 
             Border clickedBorder = sender as Border;
             int row = Grid.GetRow(clickedBorder);
             int col = Grid.GetColumn(clickedBorder);
-
             if (row == 0 || col == 0) return;
 
-            // Deselect previous
+            // Clear previous visual selection
             if (selectedCellBorder != null)
-            {
                 selectedCellBorder.Background = Brushes.Transparent;
-            }
-
-            // Highlight current
             selectedCellBorder = clickedBorder;
-            clickedBorder.Background = Brushes.IndianRed;
 
-            // Compute selected time
+            // Determine selected date/time
             var timeStr = _timeSlots[row - 1];
             TimeSpan time = TimeSpan.Parse(timeStr);
             DateTime date = _currentWeekStart.AddDays(col - 1).Add(time);
             selectedAppointmentTime = date;
 
-            AppointmentDetailPanel.Visibility = Visibility.Visible;
+            using (var db = new AppDbContext())
+            {
+                var existing = db.Appointments
+                                 .FirstOrDefault(a => a.DoctorId == selectedDoctor.Id && a.Date == selectedAppointmentTime);
+
+                if (existing != null)
+                {
+                    // Show existing appointment
+                    ExistingAppointmentPanel.Visibility = Visibility.Visible;
+                    NewAppointmentPanel.Visibility = Visibility.Collapsed;
+                    EmptyMessagePanel.Visibility = Visibility.Collapsed;
+
+                    ExistingPatientTextBlock.Text = $"Patient: {existing.PatientName}";
+                    selectedExistingAppointment = existing;
+
+                    clickedBorder.Background = Brushes.LightSkyBlue;
+                }
+                else
+                {
+                    // Show new appointment form
+                    ExistingAppointmentPanel.Visibility = Visibility.Collapsed;
+                    NewAppointmentPanel.Visibility = Visibility.Visible;
+                    EmptyMessagePanel.Visibility = Visibility.Collapsed;
+
+                    PatientNameTextBox.Text = "";
+                    NotesBox.Text = "";
+                    selectedExistingAppointment = null;
+
+                    clickedBorder.Background = Brushes.IndianRed;
+                }
+            }
         }
+
+
 
         private void SaveAppointment_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedAppointmentTime == null || selectedDoctor == null) return;
+            if (selectedAppointmentTime == null || selectedDoctor == null || selectedExistingAppointment != null)
+                return; // Prevent overwriting
 
             string patientName = PatientNameTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(patientName)) return;
@@ -228,25 +258,40 @@ namespace Patients
                 db.SaveChanges();
             }
 
-            // Update cell to blue
-            if (selectedCellBorder != null)
-            {
-                selectedCellBorder.Background = Brushes.LightSkyBlue;
-                selectedCellBorder.Child = new TextBlock
-                {
-                    Text = patientName,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                selectedCellBorder = null;
-            }
+            PatientNameTextBox.Text = "";
+            NotesBox.Text = "";
 
-            // Reset
-            PatientNameTextBox.Text = string.Empty;
-            AppointmentDetailPanel.Visibility = Visibility.Collapsed;
+            NewAppointmentPanel.Visibility = Visibility.Collapsed;
+            EmptyMessagePanel.Visibility = Visibility.Visible;
 
-            // Refresh schedule
             ShowDoctorSchedule(selectedDoctor);
         }
+
+
+
+        private void DeleteAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedExistingAppointment == null) return;
+
+            using (var db = new AppDbContext())
+            {
+                var appt = db.Appointments.Find(selectedExistingAppointment.Id);
+                if (appt != null)
+                {
+                    db.Appointments.Remove(appt);
+                    db.SaveChanges();
+                }
+            }
+
+            selectedExistingAppointment = null;
+
+            ExistingAppointmentPanel.Visibility = Visibility.Collapsed;
+            EmptyMessagePanel.Visibility = Visibility.Visible;
+
+            ShowDoctorSchedule(selectedDoctor);
+        }
+
+
+
     }
 }

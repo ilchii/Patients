@@ -94,17 +94,42 @@
         </ScrollViewer>
 
         <!-- Appointment Detail Panel -->
-        <StackPanel Grid.Column="3" x:Name="AppointmentDetailPanel" Background="#F8F8F8" Margin="10">
-            <TextBlock Text="Appointment Details" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+        <StackPanel Grid.Column="3"
+            x:Name="AppointmentDetailPanel"
+            Background="#F8F8F8"
+            Width="300"
+            HorizontalAlignment="Left"
+            Margin="0">
 
-            <TextBlock Text="Patient Name"/>
-            <TextBox x:Name="PatientNameTextBox" Margin="0,0,0,10"/>
+            <!-- Default message shown initially -->
+            <StackPanel x:Name="EmptyMessagePanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Select a cell to create/edit appointment"
+                   FontStyle="Italic"
+                   FontSize="14"
+                   Foreground="Gray"
+                   TextAlignment="Center"
+                   Margin="10"/>
+            </StackPanel>
 
-            <TextBlock Text="Notes"/>
-            <TextBox x:Name="NotesBox" Margin="0,0,0,10" Height="60" AcceptsReturn="True"/>
+            <!-- New appointment form -->
+            <StackPanel x:Name="NewAppointmentPanel" Visibility="Collapsed">
+                <TextBlock Text="New Appointment" FontWeight="Bold" FontSize="16" Margin="10"/>
+                <TextBlock Text="Patient Name" Margin="10,0,10,0"/>
+                <TextBox x:Name="PatientNameTextBox" Margin="10"/>
+                <TextBlock Text="Notes" Margin="10,10,10,0"/>
+                <TextBox x:Name="NotesBox" Margin="10" Height="60" AcceptsReturn="True"/>
+                <Button Content="Save Appointment" Click="SaveAppointment_Click" Width="150" Margin="10"/>
+            </StackPanel>
 
-            <Button Content="Save Appointment" Click="SaveAppointment_Click" Width="150"/>
+            <!-- Existing appointment view -->
+            <StackPanel x:Name="ExistingAppointmentPanel" Visibility="Collapsed">
+                <TextBlock Text="Existing Appointment" FontWeight="Bold" FontSize="16" Margin="10"/>
+                <TextBlock x:Name="ExistingPatientTextBlock" Margin="10"/>
+                <Button Content="Delete Appointment" Click="DeleteAppointment_Click" Width="150" Margin="10"/>
+            </StackPanel>
+
         </StackPanel>
+
 
     </Grid>
 </Window>
