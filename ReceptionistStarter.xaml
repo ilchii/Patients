@@ -1,11 +1,97 @@
 ﻿<Window x:Class="Patients.ReceptionistStarterWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Receptionist Dashboard" Height="200" Width="400">
+        Title="Receptionist" Height="500" Width="800">
+    <Window.Resources>
+        <!-- Expand animation -->
+        <Storyboard x:Key="ExpandPanel">
+            <DoubleAnimation Storyboard.TargetName="DoctorPanel"
+                             Storyboard.TargetProperty="Width"
+                             From="0" To="250" Duration="0:0:0.3"/>
+        </Storyboard>
+
+        <!-- Collapse animation -->
+        <Storyboard x:Key="CollapsePanel">
+            <DoubleAnimation Storyboard.TargetName="DoctorPanel"
+                             Storyboard.TargetProperty="Width"
+                             From="250" To="0" Duration="0:0:0.3"/>
+        </Storyboard>
+    </Window.Resources>
+
     <Grid>
-        <TextBlock Text="Welcome, Receptionist!" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center" 
-                   FontSize="20"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/>
+            <!-- Sidebar -->
+            <ColumnDefinition Width="Auto"/>
+            <!-- Expandable panel -->
+            <ColumnDefinition Width="*"/>
+            <!-- Main content -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <StackPanel Background="#333" Width="60">
+            <Button x:Name="DoctorsButton" Content="🧑‍⚕️" FontSize="20"
+                    Click="DoctorsButton_Click" Background="Transparent"
+                    Foreground="White" BorderBrush="Transparent" Margin="10"/>
+        </StackPanel>
+
+        <!-- Doctor Search Panel -->
+        <Border x:Name="DoctorPanel" Background="#EEE" Width="0"
+                Grid.Column="1" HorizontalAlignment="Left">
+            <StackPanel Margin="10">
+                <TextBlock Text="Doctor apply" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+
+                <!-- Search (not functional yet) -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBox x:Name="DoctorSearchBox" Width="160" Height="25" Margin="0,0,5,0"
+                             VerticalContentAlignment="Center"/>
+                    <Button Content="Search" Height="25" Width="60"/>
+                </StackPanel>
+
+                <!-- Doctor list from database -->
+                <ListBox x:Name="DoctorListBox" Height="360"
+                         SelectionChanged="DoctorListBox_SelectionChanged"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Calendar Area -->
+        <ScrollViewer Grid.Column="2" Padding="10" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock x:Name="SelectedDoctorHeader"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Margin="0,0,0,10"
+                    Text="Select a doctor to see their schedule" />
+
+                <!-- Header with week navigation -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                    <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
+                    <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
+                    <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
+                </StackPanel>
+
+                <!-- Schedule Grid -->
+                <Grid x:Name="ScheduleGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Header row for days -->
+                        <!-- Time slot rows dynamically added in code-behind -->
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <!-- Time column -->
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+
     </Grid>
 </Window>
