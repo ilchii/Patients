@@ -1,21 +1,34 @@
-﻿using System.Windows;
-using System.Windows.Media.Animation;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Patients.Data;
-using Patients.Models;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using System.Windows.Media.Animation;
+using Patients.Data;
+using Patients.Models;
 
 namespace Patients
 {
     public partial class ReceptionistStarterWindow : Window
     {
         private bool isDoctorPanelOpen = false;
+        private DateTime _currentWeekStart;
+        private List<string> _timeSlots;
+        private Border selectedCellBorder = null;
+        private Doctor selectedDoctor;
+        private DateTime? selectedAppointmentTime = null;
 
         public ReceptionistStarterWindow()
         {
             InitializeComponent();
+            _timeSlots = Enumerable.Range(0, 67)
+                .Select(i => TimeSpan.FromMinutes(7 * 60 + i * 10).ToString(@"hh\:mm"))
+                .ToList();
+
+            _currentWeekStart = StartOfWeek(DateTime.Today);
+            UpdateWeekLabel();
+            BuildScheduleGrid();
             LoadDoctors();
         }
 
@@ -31,27 +44,94 @@ namespace Patients
 
         private void DoctorsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!isDoctorPanelOpen)
-            {
-                Storyboard expand = (Storyboard)FindResource("ExpandPanel");
-                expand.Begin();
-                isDoctorPanelOpen = true;
-            }
-            else
-            {
-                Storyboard collapse = (Storyboard)FindResource("CollapsePanel");
-                collapse.Begin();
-                isDoctorPanelOpen = false;
-            }
+            Storyboard sb = (Storyboard)FindResource(isDoctorPanelOpen ? "CollapsePanel" : "ExpandPanel");
+            sb.Begin();
+            isDoctorPanelOpen = !isDoctorPanelOpen;
         }
 
         private void DoctorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedDoctor = DoctorListBox.SelectedItem as Doctor;
+            selectedDoctor = DoctorListBox.SelectedItem as Doctor;
             if (selectedDoctor != null)
             {
                 SelectedDoctorHeader.Text = $"Dr. {selectedDoctor.Name} — {selectedDoctor.Specialty}";
                 ShowDoctorSchedule(selectedDoctor);
+            }
+        }
+
+        private void UpdateWeekLabel()
+        {
+            var end = _currentWeekStart.AddDays(6);
+            WeekLabel.Text = $"{_currentWeekStart:dd MMM} - {end:dd MMM}";
+        }
+
+        private void PreviousWeek_Click(object sender, RoutedEventArgs e)
+        {
+            _currentWeekStart = _currentWeekStart.AddDays(-7);
+            UpdateWeekLabel();
+            ShowDoctorSchedule(selectedDoctor);
+        }
+
+        private void NextWeek_Click(object sender, RoutedEventArgs e)
+        {
+            _currentWeekStart = _currentWeekStart.AddDays(7);
+            UpdateWeekLabel();
+            ShowDoctorSchedule(selectedDoctor);
+        }
+
+        private DateTime StartOfWeek(DateTime dt)
+        {
+            int diff = (7 + (dt.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return dt.AddDays(-1 * diff).Date;
+        }
+
+        private void BuildScheduleGrid()
+        {
+            ScheduleGrid.Children.Clear();
+            ScheduleGrid.RowDefinitions.Clear();
+
+            ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            string[] days = { "Time", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+            for (int col = 0; col < days.Length; col++)
+            {
+                var text = new TextBlock
+                {
+                    Text = days[col],
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                Grid.SetRow(text, 0);
+                Grid.SetColumn(text, col);
+                ScheduleGrid.Children.Add(text);
+            }
+
+            for (int i = 0; i < _timeSlots.Count; i++)
+            {
+                ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+
+                var timeText = new TextBlock
+                {
+                    Text = _timeSlots[i],
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetRow(timeText, i + 1);
+                Grid.SetColumn(timeText, 0);
+                ScheduleGrid.Children.Add(timeText);
+
+                for (int day = 1; day <= 7; day++)
+                {
+                    var cellBorder = new Border
+                    {
+                        BorderBrush = Brushes.Gray,
+                        BorderThickness = new Thickness(0.5),
+                        Background = Brushes.Transparent
+                    };
+                    cellBorder.MouseLeftButtonDown += CellBorder_MouseLeftButtonDown;
+                    Grid.SetRow(cellBorder, i + 1);
+                    Grid.SetColumn(cellBorder, day);
+                    ScheduleGrid.Children.Add(cellBorder);
+                }
             }
         }
 
@@ -61,17 +141,18 @@ namespace Patients
 
             BuildScheduleGrid();
 
-            // Load from DB
             using (var context = new AppDbContext())
             {
                 var appointments = context.Appointments
-                    .Where(a => a.DoctorId == doctor.Id && a.Date >= _currentWeekStart && a.Date < _currentWeekStart.AddDays(7))
+                    .Where(a => a.DoctorId == doctor.Id &&
+                                a.Date >= _currentWeekStart &&
+                                a.Date < _currentWeekStart.AddDays(7))
                     .ToList();
 
                 foreach (var appointment in appointments)
                 {
                     int dayCol = (int)appointment.Date.DayOfWeek;
-                    if (dayCol == 0) dayCol = 7; // Sunday to column 7
+                    if (dayCol == 0) dayCol = 7;
 
                     int row = _timeSlots.IndexOf(appointment.Date.ToString("HH:mm")) + 1;
                     if (row < 1) continue;
@@ -81,7 +162,8 @@ namespace Patients
                         Background = Brushes.LightSkyBlue,
                         BorderBrush = Brushes.Black,
                         BorderThickness = new Thickness(1),
-                        Margin = new Thickness(1)
+                        Margin = new Thickness(1),
+                        IsHitTestVisible = false // prevents click
                     };
                     var label = new TextBlock
                     {
@@ -98,84 +180,73 @@ namespace Patients
             }
         }
 
-        private DateTime _currentWeekStart = DateTime.Today;
-        private List<string> _timeSlots = Enumerable.Range(0, 67)
-            .Select(i => TimeSpan.FromMinutes(7 * 60 + i * 10).ToString(@"hh\:mm"))
-            .ToList();
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void CellBorder_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _currentWeekStart = StartOfWeek(DateTime.Today);
-            UpdateWeekLabel();
-            BuildScheduleGrid();
-        }
+            if (selectedDoctor == null) return;
 
-        private void UpdateWeekLabel()
-        {
-            var end = _currentWeekStart.AddDays(6);
-            WeekLabel.Text = $"{_currentWeekStart:dd MMM} - {end:dd MMM}";
-        }
+            Border clickedBorder = sender as Border;
+            int row = Grid.GetRow(clickedBorder);
+            int col = Grid.GetColumn(clickedBorder);
 
-        private void PreviousWeek_Click(object sender, RoutedEventArgs e)
-        {
-            _currentWeekStart = _currentWeekStart.AddDays(-7);
-            UpdateWeekLabel();
-            ShowDoctorSchedule(DoctorListBox.SelectedItem as Doctor);
-        }
+            if (row == 0 || col == 0) return;
 
-        private void NextWeek_Click(object sender, RoutedEventArgs e)
-        {
-            _currentWeekStart = _currentWeekStart.AddDays(7);
-            UpdateWeekLabel();
-            ShowDoctorSchedule(DoctorListBox.SelectedItem as Doctor);
-        }
-
-        private static DateTime StartOfWeek(DateTime dt)
-        {
-            int diff = (7 + (dt.DayOfWeek - DayOfWeek.Monday)) % 7;
-            return dt.AddDays(-1 * diff).Date;
-        }
-
-        private void BuildScheduleGrid()
-        {
-            // Clear everything except headers
-            ScheduleGrid.RowDefinitions.Clear();
-            ScheduleGrid.Children.Clear();
-
-            // Header row
-            ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            // Day headers
-            string[] days = { "Time", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-            for (int col = 0; col < days.Length; col++)
+            // Deselect previous
+            if (selectedCellBorder != null)
             {
-                var text = new TextBlock
-                {
-                    Text = days[col],
-                    FontWeight = FontWeights.Bold,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-                Grid.SetRow(text, 0);
-                Grid.SetColumn(text, col);
-                ScheduleGrid.Children.Add(text);
+                selectedCellBorder.Background = Brushes.Transparent;
             }
 
-            // Time slots
-            for (int i = 0; i < _timeSlots.Count; i++)
-            {
-                ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+            // Highlight current
+            selectedCellBorder = clickedBorder;
+            clickedBorder.Background = Brushes.IndianRed;
 
-                // Time label
-                var timeText = new TextBlock
+            // Compute selected time
+            var timeStr = _timeSlots[row - 1];
+            TimeSpan time = TimeSpan.Parse(timeStr);
+            DateTime date = _currentWeekStart.AddDays(col - 1).Add(time);
+            selectedAppointmentTime = date;
+
+            AppointmentDetailPanel.Visibility = Visibility.Visible;
+        }
+
+        private void SaveAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedAppointmentTime == null || selectedDoctor == null) return;
+
+            string patientName = PatientNameTextBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(patientName)) return;
+
+            using (var db = new AppDbContext())
+            {
+                var appt = new Appointment
                 {
-                    Text = _timeSlots[i],
+                    DoctorId = selectedDoctor.Id,
+                    PatientName = patientName,
+                    Date = selectedAppointmentTime.Value
+                };
+                db.Appointments.Add(appt);
+                db.SaveChanges();
+            }
+
+            // Update cell to blue
+            if (selectedCellBorder != null)
+            {
+                selectedCellBorder.Background = Brushes.LightSkyBlue;
+                selectedCellBorder.Child = new TextBlock
+                {
+                    Text = patientName,
+                    HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
                 };
-                Grid.SetRow(timeText, i + 1);
-                Grid.SetColumn(timeText, 0);
-                ScheduleGrid.Children.Add(timeText);
+                selectedCellBorder = null;
             }
+
+            // Reset
+            PatientNameTextBox.Text = string.Empty;
+            AppointmentDetailPanel.Visibility = Visibility.Collapsed;
+
+            // Refresh schedule
+            ShowDoctorSchedule(selectedDoctor);
         }
     }
-
 }
