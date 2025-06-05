@@ -20,6 +20,7 @@ namespace Patients
         private DateTime? selectedAppointmentTime = null;
         private Appointment selectedExistingAppointment = null;
         private List<Patient> allPatients;
+        private readonly AppDbContext _context = new AppDbContext();
 
 
         public ReceptionistStarterWindow()
@@ -43,7 +44,7 @@ namespace Patients
             {
                 var doctors = db.Doctors.ToList();
                 DoctorListBox.ItemsSource = doctors;
-                DoctorListBox.DisplayMemberPath = "Name";
+                //DoctorListBox.DisplayMemberPath = "ShortFullName";
             }
         }
 
@@ -73,7 +74,7 @@ namespace Patients
             selectedDoctor = DoctorListBox.SelectedItem as Doctor;
             if (selectedDoctor != null)
             {
-                SelectedDoctorHeader.Text = $"Dr. {selectedDoctor.Name} — {selectedDoctor.Specialty}";
+                //SelectedDoctorHeader.Text = $"Dr. {selectedDoctor.Name} — {selectedDoctor.Specialty}";
                 ShowDoctorSchedule(selectedDoctor);
             }
         }
@@ -317,6 +318,20 @@ namespace Patients
                 PatientDetailsTextBlock.Text =
                     $"Age: {age}\nDOB: {selectedPatient.DateOfBirth:yyyy-MM-dd}\nAddress: {selectedPatient.HomeAddress}";
             }
+        }
+
+
+        private void DoctorSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string query = DoctorSearchBox.Text.Trim().ToLower();
+
+            var filteredDoctors = _context.Doctors
+                .Where(d =>
+                    d.Surname.ToLower().Contains(query) ||
+                    d.Specialty.ToLower().Contains(query))
+                .ToList();
+
+            DoctorListBox.ItemsSource = filteredDoctors;
         }
     }
 }

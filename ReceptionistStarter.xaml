@@ -45,14 +45,23 @@
 
                 <!-- Search (not functional yet) -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBox x:Name="DoctorSearchBox" Width="160" Height="25" Margin="0,0,5,0"
-                             VerticalContentAlignment="Center"/>
-                    <Button Content="Search" Height="25" Width="60"/>
+                    <TextBox x:Name="DoctorSearchBox" Width="230" Height="25" Margin="0,0,5,0"
+                             VerticalContentAlignment="Center" TextChanged="DoctorSearchBox_TextChanged"/>
                 </StackPanel>
 
                 <!-- Doctor list from database -->
                 <ListBox x:Name="DoctorListBox" Height="360"
-                         SelectionChanged="DoctorListBox_SelectionChanged"/>
+                        SelectionChanged="DoctorListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding ShortFullName}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Specialty}" FontStyle="Italic"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
             </StackPanel>
         </Border>
 
