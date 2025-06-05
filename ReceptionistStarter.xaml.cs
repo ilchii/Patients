@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Patients.Data;
 using Patients.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,6 +19,7 @@ namespace Patients
         private Doctor selectedDoctor;
         private DateTime? selectedAppointmentTime = null;
         private Appointment selectedExistingAppointment = null;
+        private List<Patient> allPatients;
 
 
         public ReceptionistStarterWindow()
@@ -34,7 +33,9 @@ namespace Patients
             UpdateWeekLabel();
             BuildScheduleGrid();
             LoadDoctors();
+            LoadPatients();
         }
+
 
         private void LoadDoctors()
         {
@@ -45,6 +46,20 @@ namespace Patients
                 DoctorListBox.DisplayMemberPath = "Name";
             }
         }
+
+
+        private void LoadPatients()
+        {
+            using (var db = new AppDbContext())
+            {
+                allPatients = db.Patients.ToList();
+                foreach (var p in allPatients)
+                    p.FullName = $"{p.Surname} {p.Name} {p.Patronym}";
+
+                PatientComboBox.ItemsSource = allPatients;
+            }
+        }
+
 
         private void DoctorsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -63,10 +78,16 @@ namespace Patients
             }
         }
 
+
         private void UpdateWeekLabel()
         {
             var end = _currentWeekStart.AddDays(6);
             WeekLabel.Text = $"{_currentWeekStart:dd MMM} - {end:dd MMM}";
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowDoctorSchedule(selectedDoctor);
         }
 
         private void PreviousWeek_Click(object sender, RoutedEventArgs e)
@@ -88,6 +109,7 @@ namespace Patients
             int diff = (7 + (dt.DayOfWeek - DayOfWeek.Monday)) % 7;
             return dt.AddDays(-1 * diff).Date;
         }
+
 
         private void BuildScheduleGrid()
         {
@@ -139,6 +161,7 @@ namespace Patients
             }
         }
 
+
         private void ShowDoctorSchedule(Doctor doctor)
         {
             if (doctor == null) return;
@@ -184,6 +207,7 @@ namespace Patients
                 }
             }
         }
+
 
         private void CellBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -231,7 +255,6 @@ namespace Patients
                     NewAppointmentPanel.Visibility = Visibility.Visible;
                     EmptyMessagePanel.Visibility = Visibility.Collapsed;
 
-                    PatientNameTextBox.Text = "";
                     NotesBox.Text = "";
                     selectedExistingAppointment = null;
 
@@ -241,49 +264,24 @@ namespace Patients
         }
 
 
-
         private void SaveAppointment_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedAppointmentTime == null || selectedDoctor == null || selectedExistingAppointment != null)
-                return;
-
-            string patientName = PatientNameTextBox.Text.Trim();
-            if (string.IsNullOrWhiteSpace(patientName)) return;
+            if (PatientComboBox.SelectedItem is not Patient selectedPatient) return;
 
             using (var db = new AppDbContext())
             {
-                // Temporary: create a new patient on-the-fly
-                var newPatient = new Patient
-                {
-                    Name = patientName,
-                    Surname = "Unknown",
-                    Patronym = "",
-                    DateOfBirth = DateTime.Today,
-                    HomeAddress = ""
-                };
-                db.Patients.Add(newPatient);
-                db.SaveChanges();
-
                 var appt = new Appointment
                 {
                     DoctorId = selectedDoctor.Id,
-                    PatientId = newPatient.Id,
+                    PatientId = selectedPatient.Id,
                     Date = selectedAppointmentTime.Value,
-                    Notes = NotesBox.Text.Trim()
+                    Notes = NotesBox.Text
                 };
                 db.Appointments.Add(appt);
                 db.SaveChanges();
             }
 
-            PatientNameTextBox.Text = "";
-            NotesBox.Text = "";
-
-            NewAppointmentPanel.Visibility = Visibility.Collapsed;
-            EmptyMessagePanel.Visibility = Visibility.Visible;
-
-            ShowDoctorSchedule(selectedDoctor);
         }
-
 
 
         private void DeleteAppointment_Click(object sender, RoutedEventArgs e)
@@ -309,6 +307,16 @@ namespace Patients
         }
 
 
+        private void PatientComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PatientComboBox.SelectedItem is Patient selectedPatient)
+            {
+                var age = DateTime.Today.Year - selectedPatient.DateOfBirth.Year;
+                if (selectedPatient.DateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;
 
+                PatientDetailsTextBlock.Text =
+                    $"Age: {age}\nDOB: {selectedPatient.DateOfBirth:yyyy-MM-dd}\nAddress: {selectedPatient.HomeAddress}";
+            }
+        }
     }
 }

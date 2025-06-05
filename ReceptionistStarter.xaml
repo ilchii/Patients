@@ -65,12 +65,31 @@
                            Margin="0,0,0,10"
                            Text="Select a doctor to see their schedule" />
 
-                <!-- Header with week navigation -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
-                    <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
-                    <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
-                    <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
-                </StackPanel>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Refresh button -->
+                    <Button Content="🔄"
+                        Width="24"
+                        Height="24"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Click="RefreshButton_Click"
+                        Margin="5"/>
+
+                    <!-- Center: Week navigation -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
+                        <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
+                        <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
+                    </StackPanel>
+                </Grid>
+
 
                 <!-- Schedule Grid -->
                 <Grid x:Name="ScheduleGrid" ShowGridLines="True">
@@ -115,7 +134,18 @@
             <StackPanel x:Name="NewAppointmentPanel" Visibility="Collapsed">
                 <TextBlock Text="New Appointment" FontWeight="Bold" FontSize="16" Margin="10"/>
                 <TextBlock Text="Patient Name" Margin="10,0,10,0"/>
-                <TextBox x:Name="PatientNameTextBox" Margin="10"/>
+
+                <ComboBox x:Name="PatientComboBox"
+                    DisplayMemberPath="FullName"
+                    SelectedValuePath="Id"
+                    Width="200"
+                    Margin="5"
+                    SelectionChanged="PatientComboBox_SelectionChanged"/>
+                        <TextBlock x:Name="PatientDetailsTextBlock"
+                    Margin="5"
+                    Text="Select a patient to see details."/>
+
+
                 <TextBlock Text="Notes" Margin="10,10,10,0"/>
                 <TextBox x:Name="NotesBox" Margin="10" Height="60" AcceptsReturn="True"/>
                 <Button Content="Save Appointment" Click="SaveAppointment_Click" Width="150" Margin="10"/>
