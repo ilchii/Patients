@@ -1,7 +1,8 @@
 ﻿<Window x:Class="Patients.ReceptionistStarterWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Receptionist" Height="500" Width="1000">
+        Title="Receptionist" Height="1000" Width="1500"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <!-- Expand animation -->
         <Storyboard x:Key="ExpandPanel">
@@ -43,14 +44,14 @@
             <StackPanel Margin="10">
                 <TextBlock Text="Doctor apply" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
 
-                <!-- Search (not functional yet) -->
+                <!-- Search -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <TextBox x:Name="DoctorSearchBox" Width="230" Height="25" Margin="0,0,5,0"
                              VerticalContentAlignment="Center" TextChanged="DoctorSearchBox_TextChanged"/>
                 </StackPanel>
 
                 <!-- Doctor list from database -->
-                <ListBox x:Name="DoctorListBox" Height="360"
+                <ListBox x:Name="DoctorListBox" Height="Auto"
                         SelectionChanged="DoctorListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -66,47 +67,66 @@
         </Border>
 
         <!-- Main Calendar Area -->
-        <ScrollViewer Grid.Column="2" Padding="10" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <TextBlock x:Name="SelectedDoctorHeader"
-                           FontSize="16"
-                           FontWeight="Bold"
-                           Margin="0,0,0,10"
-                           Text="Select a doctor to see their schedule" />
+        <Grid Grid.Column="2" Margin="100">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Navigation -->
+                <RowDefinition Height="*"/>
+                <!-- Calendar section (scrollable) -->
+            </Grid.RowDefinitions>
 
+            <!-- Selected Doctor Header -->
+            <TextBlock Grid.Row="0"
+               x:Name="SelectedDoctorHeader"
+               FontSize="16"
+               FontWeight="Bold"
+               Margin="0,0,0,10"
+               Text="Select a doctor to see their schedule" />
 
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <!-- Navigation controls -->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <!-- Left: Refresh button -->
-                    <Button Content="🔄"
-                        Width="24"
-                        Height="24"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        Click="RefreshButton_Click"
-                        Margin="5"/>
+                <!-- Left: Refresh button -->
+                <Button Content="🔄"
+                Width="24"
+                Height="24"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Click="RefreshButton_Click"
+                Margin="5"/>
 
-                    <!-- Center: Week navigation -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
-                        <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
-                        <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
-                    </StackPanel>
-                </Grid>
+                <!-- Center: Week navigation -->
+                <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                    <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
+                    <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
+                    <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
+                </StackPanel>
+            </Grid>
 
+            <!-- Calendar section (header + scrollable schedule) -->
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Fixed header row -->
+                    <RowDefinition Height="*"/>
+                    <!-- Scrollable rows -->
+                </Grid.RowDefinitions>
 
-                <!-- Schedule Grid -->
-                <Grid x:Name="ScheduleGrid" ShowGridLines="True">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <!-- Header row for days -->
-                        <!-- Time slot rows dynamically added in code-behind -->
-                    </Grid.RowDefinitions>
+                <!-- Fixed Header Row (Days) -->
+                <Grid x:Name="ScheduleHeaderGrid"
+              Grid.Row="0"
+              ShowGridLines="True"
+              Margin="0,0,17,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="*"/>
@@ -118,8 +138,28 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
-            </StackPanel>
-        </ScrollViewer>
+
+                <!-- Scrollable Time Slots -->
+                <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+                    <Grid x:Name="ScheduleGrid" ShowGridLines="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Time rows will be added dynamically -->
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
 
         <!-- Appointment Detail Panel -->
         <StackPanel Grid.Column="3"

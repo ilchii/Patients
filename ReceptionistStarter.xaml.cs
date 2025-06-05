@@ -74,7 +74,7 @@ namespace Patients
             selectedDoctor = DoctorListBox.SelectedItem as Doctor;
             if (selectedDoctor != null)
             {
-                //SelectedDoctorHeader.Text = $"Dr. {selectedDoctor.Name} — {selectedDoctor.Specialty}";
+                SelectedDoctorHeader.Text = $"Dr. {selectedDoctor.ShortFullName} — {selectedDoctor.Specialty}";
                 ShowDoctorSchedule(selectedDoctor);
             }
         }
@@ -130,7 +130,7 @@ namespace Patients
                 };
                 Grid.SetRow(text, 0);
                 Grid.SetColumn(text, col);
-                ScheduleGrid.Children.Add(text);
+                ScheduleHeaderGrid.Children.Add(text);
             }
 
             for (int i = 0; i < _timeSlots.Count; i++)
