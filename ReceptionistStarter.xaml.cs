@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Patients.Data;
+using Patients.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -6,8 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using Patients.Data;
-using Patients.Models;
 
 namespace Patients
 {
@@ -150,6 +151,7 @@ namespace Patients
                     .Where(a => a.DoctorId == doctor.Id &&
                                 a.Date >= _currentWeekStart &&
                                 a.Date < _currentWeekStart.AddDays(7))
+                    .Include(a => a.Patient)
                     .ToList();
 
                 foreach (var appointment in appointments)
@@ -170,7 +172,7 @@ namespace Patients
                     };
                     var label = new TextBlock
                     {
-                        Text = appointment.PatientName,
+                        Text = $"{appointment.Patient.Surname} {appointment.Patient.Name}",
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -206,7 +208,9 @@ namespace Patients
             using (var db = new AppDbContext())
             {
                 var existing = db.Appointments
-                                 .FirstOrDefault(a => a.DoctorId == selectedDoctor.Id && a.Date == selectedAppointmentTime);
+                    .Include(a => a.Patient)
+                    .FirstOrDefault(a => a.DoctorId == selectedDoctor.Id && a.Date == selectedAppointmentTime);
+
 
                 if (existing != null)
                 {
@@ -215,7 +219,7 @@ namespace Patients
                     NewAppointmentPanel.Visibility = Visibility.Collapsed;
                     EmptyMessagePanel.Visibility = Visibility.Collapsed;
 
-                    ExistingPatientTextBlock.Text = $"Patient: {existing.PatientName}";
+                    ExistingPatientTextBlock.Text = $"Patient: {existing.Patient.Surname} {existing.Patient.Name}";
                     selectedExistingAppointment = existing;
 
                     clickedBorder.Background = Brushes.LightSkyBlue;
@@ -241,18 +245,31 @@ namespace Patients
         private void SaveAppointment_Click(object sender, RoutedEventArgs e)
         {
             if (selectedAppointmentTime == null || selectedDoctor == null || selectedExistingAppointment != null)
-                return; // Prevent overwriting
+                return;
 
             string patientName = PatientNameTextBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(patientName)) return;
 
             using (var db = new AppDbContext())
             {
+                // Temporary: create a new patient on-the-fly
+                var newPatient = new Patient
+                {
+                    Name = patientName,
+                    Surname = "Unknown",
+                    Patronym = "",
+                    DateOfBirth = DateTime.Today,
+                    HomeAddress = ""
+                };
+                db.Patients.Add(newPatient);
+                db.SaveChanges();
+
                 var appt = new Appointment
                 {
                     DoctorId = selectedDoctor.Id,
-                    PatientName = patientName,
-                    Date = selectedAppointmentTime.Value
+                    PatientId = newPatient.Id,
+                    Date = selectedAppointmentTime.Value,
+                    Notes = NotesBox.Text.Trim()
                 };
                 db.Appointments.Add(appt);
                 db.SaveChanges();
