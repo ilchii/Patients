@@ -12,6 +12,8 @@
 
         public DateTime Date { get; set; }
 
+        public int DurationMinutes { get; set; }
+
         public string Notes { get; set; }
     }
 

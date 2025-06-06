@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Patients.Data;
 using Patients.Models;
-using System.Windows.Shapes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -206,13 +205,9 @@ namespace Patients
                     };
                     border.Child = label;
 
-                    // Set duration and row span
-                    int durationMinutes = 10;
-                    int rowSpan = durationMinutes / 10;
-
                     Grid.SetRow(border, row);
                     Grid.SetColumn(border, dayCol);
-                    Grid.SetRowSpan(border, rowSpan);
+                    Grid.SetRowSpan(border, appointment.DurationMinutes / 10);
                     ScheduleGrid.Children.Add(border);
 
                 }
@@ -222,10 +217,9 @@ namespace Patients
         private DateTime selectedAppointmentEndTime;
         private int currentRow;
         private int currentCol;
-        private int durationInSlots = 1; // 1 slot = 10 minutes
+        private int durationInSlots = 1;
         private TextBlock timeLabel;
         private Border currentResizableBorder;
-        //private DateTime selectedAppointmentTime;
 
 
         private void CellBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -253,6 +247,12 @@ namespace Patients
 
                 if (existing != null)
                 {
+                    if (currentResizableBorder != null)
+                    {
+                        ScheduleGrid.Children.Remove(currentResizableBorder);
+                        currentResizableBorder = null;
+                    }
+
                     // Show existing appointment
                     ExistingAppointmentPanel.Visibility = Visibility.Visible;
                     NewAppointmentPanel.Visibility = Visibility.Collapsed;
@@ -360,8 +360,42 @@ namespace Patients
         private void PlusButton_Click(object sender, RoutedEventArgs e)
         {
             if (selectedCellBorder == null) return;
-            durationInSlots++;
-            if (durationInSlots > 6) return; // Max 60 minutes
+
+            // Check for overlap before increasing duration
+            int newDuration = durationInSlots + 1;
+            if (newDuration > 6) return; // Max 60 minutes
+
+            // Calculate the time slots that would be occupied
+            int col = currentCol;
+            int startRow = currentRow;
+            int endRow = startRow + newDuration - 1;
+
+            // Check for overlap with existing appointments in the same column (day)
+            for (int r = startRow; r <= endRow; r++)
+            {
+                // Skip the first slot (already occupied by this new appointment)
+                if (r < startRow + durationInSlots) continue;
+
+                foreach (UIElement child in ScheduleGrid.Children)
+                {
+                    if (child is Border border && border != selectedCellBorder && border.IsHitTestVisible == false)
+                    {
+                        int borderRow = Grid.GetRow(border);
+                        int borderCol = Grid.GetColumn(border);
+                        int borderRowSpan = Grid.GetRowSpan(border);
+
+                        if (borderCol == col &&
+                            r >= borderRow && r < borderRow + borderRowSpan)
+                        {
+                            // Overlap detected
+                            return;
+                        }
+                    }
+                }
+            }
+
+            durationInSlots = newDuration;
+
             // Update time label
             var startTime = TimeSpan.Parse(_timeSlots[currentRow - 1]);
             selectedAppointmentEndTime = selectedAppointmentTime.Value.AddMinutes(durationInSlots * 10);
@@ -375,6 +409,7 @@ namespace Patients
             if (selectedCellBorder == null) return;
             durationInSlots--;
             if (durationInSlots < 1) durationInSlots = 1; // Min 10 minutes
+
             // Update time label
             var startTime = TimeSpan.Parse(_timeSlots[currentRow - 1]);
             selectedAppointmentEndTime = selectedAppointmentTime.Value.AddMinutes(durationInSlots * 10);
@@ -394,12 +429,19 @@ namespace Patients
                     DoctorId = selectedDoctor.Id,
                     PatientId = selectedPatient.Id,
                     Date = selectedAppointmentTime.Value,
+                    DurationMinutes = durationInSlots * 10,
                     Notes = NotesBox.Text
                 };
                 db.Appointments.Add(appt);
                 db.SaveChanges();
             }
 
+            // Show existing appointment
+            NewAppointmentPanel.Visibility = Visibility.Collapsed;
+            ExistingAppointmentPanel.Visibility = Visibility.Collapsed;
+            EmptyMessagePanel.Visibility = Visibility.Visible;
+
+            ShowDoctorSchedule(selectedDoctor);
         }
 
 
