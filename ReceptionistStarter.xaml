@@ -128,7 +128,7 @@
               ShowGridLines="True"
               Margin="0,0,17,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -145,7 +145,7 @@
                       HorizontalScrollBarVisibility="Disabled">
                     <Grid x:Name="ScheduleGrid" ShowGridLines="True">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="60"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>

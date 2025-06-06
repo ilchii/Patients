@@ -135,12 +135,13 @@ namespace Patients
 
             for (int i = 0; i < _timeSlots.Count; i++)
             {
-                ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
 
                 var timeText = new TextBlock
                 {
                     Text = _timeSlots[i],
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
                 };
                 Grid.SetRow(timeText, i + 1);
                 Grid.SetColumn(timeText, 0);
@@ -196,7 +197,8 @@ namespace Patients
                     };
                     var label = new TextBlock
                     {
-                        Text = $"{appointment.Patient.Surname} {appointment.Patient.Name}",
+                        Text = $"{appointment.Date:HH:mm}\n–{appointment.Date.AddMinutes(10):HH:mm}",
+                        TextAlignment = TextAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center
                     };
