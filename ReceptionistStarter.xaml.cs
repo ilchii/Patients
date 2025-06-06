@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Patients.Data;
 using Patients.Models;
-using System.Numerics;
+using System.Windows.Shapes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,8 +26,10 @@ namespace Patients
         public ReceptionistStarterWindow()
         {
             InitializeComponent();
-            _timeSlots = Enumerable.Range(0, 67)
-                .Select(i => TimeSpan.FromMinutes(7 * 60 + i * 10).ToString(@"hh\:mm"))
+            _timeSlots = Enumerable.Range(0, 61)
+                .Select(i => TimeSpan.FromMinutes(8 * 60 + i * 10))
+                .TakeWhile(t => t < TimeSpan.FromHours(18.10))
+                .Select(t => t.ToString(@"hh\:mm"))
                 .ToList();
 
             _currentWeekStart = StartOfWeek(DateTime.Today);
@@ -204,12 +206,26 @@ namespace Patients
                     };
                     border.Child = label;
 
+                    // Set duration and row span
+                    int durationMinutes = 10;
+                    int rowSpan = durationMinutes / 10;
+
                     Grid.SetRow(border, row);
                     Grid.SetColumn(border, dayCol);
+                    Grid.SetRowSpan(border, rowSpan);
                     ScheduleGrid.Children.Add(border);
+
                 }
             }
         }
+
+        private DateTime selectedAppointmentEndTime;
+        private int currentRow;
+        private int currentCol;
+        private int durationInSlots = 1; // 1 slot = 10 minutes
+        private TextBlock timeLabel;
+        private Border currentResizableBorder;
+        //private DateTime selectedAppointmentTime;
 
 
         private void CellBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -221,12 +237,9 @@ namespace Patients
             int col = Grid.GetColumn(clickedBorder);
             if (row == 0 || col == 0) return;
 
-            // Clear previous visual selection
-            if (selectedCellBorder != null)
-                selectedCellBorder.Background = Brushes.Transparent;
             selectedCellBorder = clickedBorder;
 
-            // Determine selected date/time
+            // Get selected time and date
             var timeStr = _timeSlots[row - 1];
             TimeSpan time = TimeSpan.Parse(timeStr);
             DateTime date = _currentWeekStart.AddDays(col - 1).Add(time);
@@ -237,7 +250,6 @@ namespace Patients
                 var existing = db.Appointments
                     .Include(a => a.Patient)
                     .FirstOrDefault(a => a.DoctorId == selectedDoctor.Id && a.Date == selectedAppointmentTime);
-
 
                 if (existing != null)
                 {
@@ -253,6 +265,9 @@ namespace Patients
                 }
                 else
                 {
+                    DateTime startDateTime = _currentWeekStart.AddDays(col - 1).Add(time);
+                    selectedAppointmentTime = startDateTime;
+
                     // Show new appointment form
                     ExistingAppointmentPanel.Visibility = Visibility.Collapsed;
                     NewAppointmentPanel.Visibility = Visibility.Visible;
@@ -261,11 +276,112 @@ namespace Patients
                     NotesBox.Text = "";
                     selectedExistingAppointment = null;
 
-                    clickedBorder.Background = Brushes.IndianRed;
+                    // Clear previous resizable border if it exists
+                    if (currentResizableBorder != null)
+                    {
+                        ScheduleGrid.Children.Remove(currentResizableBorder);
+                        currentResizableBorder = null;
+                    }
+
+                    var stack = new StackPanel
+                    {
+                        VerticalAlignment = VerticalAlignment.Stretch
+                    };
+
+                    TimeSpan startTime = TimeSpan.Parse(timeStr);
+
+                    currentRow = row;
+                    currentCol = col;
+                    durationInSlots = 1;
+                    selectedAppointmentTime = _currentWeekStart.AddDays(col - 1).Add(startTime);
+                    selectedAppointmentEndTime = selectedAppointmentTime.Value.Add(TimeSpan.FromMinutes(10));
+
+                    timeLabel = new TextBlock
+                    {
+                        Text = $"{startTime:hh\\:mm} - {startTime.Add(TimeSpan.FromMinutes(10)):hh\\:mm}",
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(5)
+                    };
+                    stack.Children.Add(timeLabel);
+
+                    // + Button
+                    var plusButton = new Button
+                    {
+                        Content = "+",
+                        Width = 30,
+                        Margin = new Thickness(5)
+                    };
+                    plusButton.Click += PlusButton_Click;
+
+                    // - Button
+                    var minusButton = new Button
+                    {
+                        Content = "-",
+                        Width = 30,
+                        Margin = new Thickness(5)
+                    };
+                    minusButton.Click += MinusButton_Click;
+
+                    // Button layout
+                    var buttonPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    buttonPanel.Children.Add(minusButton);
+                    buttonPanel.Children.Add(plusButton);
+
+                    stack.Children.Add(buttonPanel);
+
+                    var resizableBorder = new Border
+                    {
+                        Background = Brushes.IndianRed,
+                        BorderBrush = Brushes.DarkRed,
+                        BorderThickness = new Thickness(1),
+                        Margin = new Thickness(1),
+                        Child = stack
+                    };
+
+                    Grid.SetRow(resizableBorder, row);
+                    Grid.SetColumn(resizableBorder, col);
+                    Grid.SetRowSpan(resizableBorder, 1);
+                    ScheduleGrid.Children.Add(resizableBorder);
+
+                    // Save reference
+                    currentResizableBorder = resizableBorder;
+                    selectedCellBorder = resizableBorder;
                 }
+
             }
         }
 
+
+        private void PlusButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedCellBorder == null) return;
+            durationInSlots++;
+            if (durationInSlots > 6) return; // Max 60 minutes
+            // Update time label
+            var startTime = TimeSpan.Parse(_timeSlots[currentRow - 1]);
+            selectedAppointmentEndTime = selectedAppointmentTime.Value.AddMinutes(durationInSlots * 10);
+            timeLabel.Text = $"{startTime:hh\\:mm} - {selectedAppointmentEndTime:hh\\:mm}";
+            // Update border size
+            selectedCellBorder.SetValue(Grid.RowSpanProperty, durationInSlots);
+        }
+
+        private void MinusButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedCellBorder == null) return;
+            durationInSlots--;
+            if (durationInSlots < 1) durationInSlots = 1; // Min 10 minutes
+            // Update time label
+            var startTime = TimeSpan.Parse(_timeSlots[currentRow - 1]);
+            selectedAppointmentEndTime = selectedAppointmentTime.Value.AddMinutes(durationInSlots * 10);
+            timeLabel.Text = $"{startTime:hh\\:mm} - {selectedAppointmentEndTime:hh\\:mm}";
+            // Update border size
+            selectedCellBorder.SetValue(Grid.RowSpanProperty, durationInSlots);
+        }
 
         private void SaveAppointment_Click(object sender, RoutedEventArgs e)
         {

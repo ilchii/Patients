@@ -17,6 +17,15 @@
                              Storyboard.TargetProperty="Width"
                              From="250" To="0" Duration="0:0:0.3"/>
         </Storyboard>
+
+        <Style x:Key="DragHandleStyle" TargetType="Rectangle">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+            <Setter Property="Fill" Value="Gray"/>
+            <Setter Property="Cursor" Value="SizeNS"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -124,9 +133,9 @@
 
                 <!-- Fixed Header Row (Days) -->
                 <Grid x:Name="ScheduleHeaderGrid"
-              Grid.Row="0"
-              ShowGridLines="True"
-              Margin="0,0,17,0">
+                    Grid.Row="0"
+                    ShowGridLines="True"
+                    Margin="0,0,17,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="*"/>
