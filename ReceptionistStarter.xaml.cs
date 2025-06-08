@@ -96,14 +96,22 @@ namespace Patients
         {
             _currentWeekStart = _currentWeekStart.AddDays(-7);
             UpdateWeekLabel();
-            ShowDoctorSchedule(selectedDoctor);
+            BuildScheduleGrid();
+            if (selectedDoctor != null)
+            {
+                ShowDoctorSchedule(selectedDoctor);
+            }
         }
 
         private void NextWeek_Click(object sender, RoutedEventArgs e)
         {
             _currentWeekStart = _currentWeekStart.AddDays(7);
             UpdateWeekLabel();
-            ShowDoctorSchedule(selectedDoctor);
+            BuildScheduleGrid();
+            if (selectedDoctor != null)
+            {
+                ShowDoctorSchedule(selectedDoctor);
+            }
         }
 
         private DateTime StartOfWeek(DateTime dt)
@@ -117,21 +125,35 @@ namespace Patients
         {
             ScheduleGrid.Children.Clear();
             ScheduleGrid.RowDefinitions.Clear();
+            ScheduleHeaderGrid.Children.Clear();
 
             ScheduleGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            int todayCol = -1;
+            if (DateTime.Today >= _currentWeekStart && DateTime.Today < _currentWeekStart.AddDays(7))
+            {
+                todayCol = (DateTime.Today - _currentWeekStart).Days + 1; // +1 because 0 is the "Time" column
+            }
 
             string[] days = { "Time", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
             for (int col = 0; col < days.Length; col++)
             {
+                Border headerBorder = new Border
+                {
+                    Background = (col == todayCol) ? Brushes.LightGray : Brushes.Transparent
+                };
+
                 var text = new TextBlock
                 {
                     Text = days[col],
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
-                Grid.SetRow(text, 0);
-                Grid.SetColumn(text, col);
-                ScheduleHeaderGrid.Children.Add(text);
+                headerBorder.Child = text;
+
+                Grid.SetRow(headerBorder, 0);
+                Grid.SetColumn(headerBorder, col);
+                ScheduleHeaderGrid.Children.Add(headerBorder);
             }
 
             for (int i = 0; i < _timeSlots.Count; i++)
@@ -156,6 +178,11 @@ namespace Patients
                         BorderThickness = new Thickness(0.5),
                         Background = Brushes.Transparent
                     };
+
+                    if (day == todayCol)
+                    {
+                        cellBorder.Background = Brushes.LightGray;
+                    }
                     cellBorder.MouseLeftButtonDown += CellBorder_MouseLeftButtonDown;
                     Grid.SetRow(cellBorder, i + 1);
                     Grid.SetColumn(cellBorder, day);
@@ -243,7 +270,17 @@ namespace Patients
             {
                 var existing = db.Appointments
                     .Include(a => a.Patient)
-                    .FirstOrDefault(a => a.DoctorId == selectedDoctor.Id && a.Date == selectedAppointmentTime);
+                    .AsEnumerable()
+                    .FirstOrDefault(a =>
+                    {
+                        if (a.DoctorId != selectedDoctor.Id)
+                            return false;
+
+                        var apptStart = a.Date;
+                        var apptEnd = a.Date.AddMinutes(a.DurationMinutes);
+                        return selectedAppointmentTime >= apptStart && selectedAppointmentTime < apptEnd;
+                    });
+
 
                 if (existing != null)
                 {
