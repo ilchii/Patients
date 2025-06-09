@@ -4,17 +4,10 @@
         Title="Doctor Appointments" Height="1000" Width="1000">
     <Grid Margin="10">
         <TextBlock Text="Today's Appointments" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
-        <ListBox x:Name="AppointmentsListBox" Margin="0,40,0,0" ItemsSource="{Binding}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Gray" BorderThickness="1" Margin="5" Padding="10">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding PatientName}" FontSize="16" Width="200"/>
-                            <Button Content="Start" Width="100" Margin="10,0,0,0"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="50">
+            <StackPanel x:Name="AppointmentsPanel" Margin="20">
+                <!-- Appointments will be added dynamically -->
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
