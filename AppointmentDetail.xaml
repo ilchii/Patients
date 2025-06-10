@@ -1,0 +1,37 @@
+﻿<Page x:Class="Patients.AppointmentDetailPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="AppointmentDetailPage">
+    <Grid Background="White" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Patient Info Section -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock x:Name="PatientName" FontSize="24" FontWeight="Bold"/>
+            <TextBlock x:Name="PatientId" FontStyle="Italic"/>
+            <TextBlock x:Name="AppointmentTime" Margin="0,10,0,0"/>
+            <TextBlock x:Name="PatientAge"/>
+            <TextBlock x:Name="PatientAddress"/>
+        </StackPanel>
+
+        <!-- Navigation buttons -->
+        <DockPanel Grid.Row="1" Margin="0,10,0,10">
+            <Button Content="← Back" Width="120" DockPanel.Dock="Left" Click="Back_Click"/>
+            <Button Content="Close Appointment" Width="150" DockPanel.Dock="Right" Click="CloseAppointment_Click"/>
+        </DockPanel>
+
+        <!-- Episodes List -->
+        <StackPanel Grid.Row="2" x:Name="EpisodesPanel">
+            <TextBlock Text="Episodes" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+            <!-- Episodes will be added here dynamically -->
+        </StackPanel>
+
+        <!-- Add Episode Button -->
+        <Button Grid.Row="3" Content="+ Add New Episode" HorizontalAlignment="Center" Margin="0,20,0,0" Click="AddEpisode_Click"/>
+    </Grid>
+</Page>
