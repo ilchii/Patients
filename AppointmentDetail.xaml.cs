@@ -42,6 +42,17 @@ namespace Patients
             _parentFrame.Content = null;
         }
 
+        private void AddEpisode_Click(object sender, RoutedEventArgs e)
+        {
+            // Hide this page
+            this.Visibility = Visibility.Collapsed;
+
+            // Show EpisodeCreation page
+            var episodeCreationPage = new EpisodeCreationPage(_appointment, _parentFrame);
+            _parentFrame.Content = episodeCreationPage;
+            _parentFrame.Visibility = Visibility.Visible;
+        }
+
         private void LoadAppointmentDetails()
         {
             using (var context = new AppDbContext())
@@ -99,10 +110,6 @@ namespace Patients
             }
         }
 
-        private void AddEpisode_Click(object sender, RoutedEventArgs e)
-        {
-            // Logic to add an episode (not implemented in this example)
-            MessageBox.Show("Add Episode functionality is not yet implemented.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
+
     }
 }

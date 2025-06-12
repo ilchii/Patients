@@ -1,0 +1,65 @@
+﻿<Page x:Class="Patients.EpisodeCreationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="EpisodeCreationPage">
+    <Grid Background="White" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Search -->
+            <RowDefinition Height="*"/>
+            <!-- List -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <!-- Selected symptoms -->
+        </Grid.RowDefinitions>
+
+        <!-- Search box -->
+        <TextBox x:Name="SearchBox" Margin="0,0,0,10" 
+                 TextChanged="SearchBox_TextChanged"/>
+
+        <!-- Symptoms list -->
+        <ListBox x:Name="SymptomsListBox" Grid.Row="1" Height="100" SelectionMode="Single"
+                 SelectionChanged="SymptomsListBox_SelectionChanged"/>
+
+        <!-- Selected symptoms -->
+        <StackPanel Grid.Row="2" Margin="0,20,0,0">
+            <TextBlock Text="Selected Symptoms:" FontWeight="Bold"/>
+            <WrapPanel x:Name="SelectedSymptomsPanel" Margin="0,10,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Margin="20" Orientation="Vertical" Background="#F9F9F9" >
+
+            <!-- ICPC-2 Diagnosis Section -->
+            <TextBlock Text="Search ICPC-2 Diagnosis" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="ICPC2SearchBox"
+             Height="30"
+             Margin="0,0,0,10"
+             TextChanged="ICPC2SearchBox_TextChanged"/>
+
+            <ListBox x:Name="ICPC2ListBox"
+             Height="150"
+             Margin="0,0,0,20"
+             SelectionChanged="ICPC2ListBox_SelectionChanged"/>
+
+            <!-- ICD-10 Diagnosis Section -->
+            <TextBlock Text="Search ICD-10 Diagnosis" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBox x:Name="ICD10SearchBox"
+             Height="30"
+             Margin="0,0,0,10"
+             TextChanged="ICD10SearchBox_TextChanged"/>
+
+            <ListBox x:Name="ICD10ListBox"
+             Height="150"
+             SelectionChanged="ICD10ListBox_SelectionChanged"/>
+
+            <!-- Display Selected Diagnosis -->
+            <TextBlock x:Name="SelectedDiagnosisTextBlock"
+               FontWeight="SemiBold"
+               FontSize="14"
+               Foreground="DarkSlateGray"
+               Margin="0,20,0,0"/>
+        </StackPanel>
+
+
+    </Grid>
+</Page>
