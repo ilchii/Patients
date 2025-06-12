@@ -26,18 +26,20 @@ namespace Patients
         private readonly int _appointmentId;
         private Appointment _appointment;
         private Patient _patient;
+        private Frame _parentFrame;
 
-        public AppointmentDetailPage(int appointmentId)
+        public AppointmentDetailPage(Appointment appointment, Frame parentFrame)
         {
             InitializeComponent();
-            _appointmentId = appointmentId;
+            _appointmentId = appointment.Id;
+            _parentFrame = parentFrame;
             LoadAppointmentDetails();
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            if (NavigationService.CanGoBack)
-                NavigationService.GoBack();
+            _parentFrame.Visibility = Visibility.Collapsed;
+            _parentFrame.Content = null;
         }
 
         private void LoadAppointmentDetails()
