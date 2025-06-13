@@ -242,7 +242,7 @@ namespace Patients
 
             ICPC2ListBox.DisplayMemberPath = "Display";
 
-            ICPC2ListBox.Visibility = Visibility.Collapsed;
+            ICD10ListBox.Visibility = Visibility.Collapsed;
             icpc2DropdownOpen = false;
             ICPC2ListBox.SelectedItem = null;
         }
@@ -266,19 +266,6 @@ namespace Patients
             }
         }
 
-        //private void ICPC2SearchBox_LostFocus(object sender, RoutedEventArgs e)
-        //{
-        //    Dispatcher.InvokeAsync(() =>
-        //    {
-        //        if (!ICPC2ListBox.IsKeyboardFocusWithin)
-        //        {
-        //            ICPC2ListBox.Visibility = Visibility.Collapsed;
-        //            icpc2DropdownOpen = false;
-        //        }
-        //    }, System.Windows.Threading.DispatcherPriority.Input);
-        //}
-
-
         private void ICD10SearchBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!icd10DropdownOpen)
@@ -287,18 +274,6 @@ namespace Patients
                 icd10DropdownOpen = true;
             }
         }
-
-        //private void ICD10SearchBox_LostFocus(object sender, RoutedEventArgs e)
-        //{
-        //    Dispatcher.InvokeAsync(() =>
-        //    {
-        //        if (!ICD10ListBox.IsKeyboardFocusWithin)
-        //        {
-        //            ICD10ListBox.Visibility = Visibility.Collapsed;
-        //            icd10DropdownOpen = false;
-        //        }
-        //    }, System.Windows.Threading.DispatcherPriority.Input);
-        //}
 
         private void MainGrid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
