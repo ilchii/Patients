@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Patients
 {
@@ -13,15 +15,14 @@ namespace Patients
         private readonly AppDbContext _context = new AppDbContext();
 
         private List<Icpc2Icd10> allSymptoms = new();
-        private List<Icpc2Icd10> allDiagnoses = new();
+        private List<Icpc2Icd10> filteredSymptoms = new();
+        private List<Icpc2Icd10> selectedSymptoms = new();
 
         private List<Icpc2Icd10> allICPC2Diagnoses;
         private List<Icpc2Icd10> allICD10Diagnoses;
 
-
-        private List<Icpc2Icd10> filteredSymptoms = new();
-        private List<Icpc2Icd10> selectedSymptoms = new();
-        private Icpc2Icd10 selectedDiagnosis;
+        private bool icpc2DropdownOpen = false;
+        private bool icd10DropdownOpen = false;
 
 
         public EpisodeCreationPage(Appointment appointment, Frame parentFrame)
@@ -42,16 +43,6 @@ namespace Patients
 
             FilterSymptoms();
 
-            //allDiagnoses = _context.Icpc2Icd10
-            //    .AsEnumerable()
-            //    .Where(d => d.Type == "diagnosis")
-            //    .GroupBy(d => d.ICPC2)
-            //    .Select(g => g.First())
-            //    .OrderBy(d => d.ICPC2)
-            //    .ToList();
-
-            //FilterDiagnoses();
-
 
             allICPC2Diagnoses = _context.Icpc2Icd10
                 .AsEnumerable()
@@ -61,7 +52,6 @@ namespace Patients
                 .OrderBy(d => d.ICPC2)
                 .ToList();
 
-            // Load and group ICD-10 diagnoses
             allICD10Diagnoses = _context.Icpc2Icd10
                 .AsEnumerable()
                 .Where(d => d.Type == "diagnosis")
@@ -163,49 +153,6 @@ namespace Patients
             }
         }
 
-        // Diagnosis selection
-        //private void DiagnosisSearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    FilterDiagnoses();
-        //}
-
-        //private void FilterDiagnoses()
-        //{
-        //    string search = DiagnosisSearchBox.Text.ToLower();
-
-        //    var filtered = allDiagnoses
-        //        .Where(d =>
-        //            (d.TextICPC2 ?? "").ToLower().Contains(search) ||
-        //            (d.ICPC2 ?? "").ToLower().Contains(search))
-        //        .Select(d => new
-        //        {
-        //            Display = $"{d.ICPC2} – {d.TextICPC2}",
-        //            Original = d
-        //        })
-        //        .ToList();
-
-        //    DiagnosisListBox.ItemsSource = filtered;
-        //    DiagnosisListBox.DisplayMemberPath = "Display";
-        //}
-
-        //private void DiagnosisListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (DiagnosisListBox.SelectedItem is null) return;
-
-        //    var selected = (dynamic)DiagnosisListBox.SelectedItem;
-        //    selectedDiagnosis = selected.Original;
-
-        //    // Show diagnosis in search bar & text block
-        //    DiagnosisSearchBox.Text = $"{selectedDiagnosis.ICPC2} – {selectedDiagnosis.TextICPC2}";
-        //    SelectedDiagnosisTextBlock.Text = $"Selected: {selectedDiagnosis.ICPC2} – {selectedDiagnosis.TextICPC2}";
-
-        //    DiagnosisListBox.SelectedItem = null;
-        //    FilterDiagnoses();
-        //}
-
-
-        // ICPC-2 Diagnosis selection
-
         private void FilterICPC2Diagnoses()
         {
             string search = ICPC2SearchBox.Text.ToLower();
@@ -244,17 +191,15 @@ namespace Patients
         {
             if (ICPC2ListBox.SelectedItem is null) return;
 
-            var selected = ICPC2ListBox.SelectedItem as dynamic; // Explicitly cast to dynamic
-            var selectedICPC = selected?.Original?.ICPC2; // Use null-conditional operator to avoid dynamic issues
+            var selected = ICPC2ListBox.SelectedItem as dynamic;
+            var selectedICPC = selected?.Original?.ICPC2;
 
             if (selectedICPC == null) return;
 
-            // Show diagnosis in search bar
-            ICPC2SearchBox.Text = $"{selected.Original.ICPC2} – {selected.Original.TextICPC2}";
+             ICPC2SearchBox.Text = $"{selected.Original.ICPC2} – {selected.Original.TextICPC2}";
 
-            // Filter ICD10 diagnoses to only those linked to the selected ICPC2
             var linkedICD10s = _context.Icpc2Icd10
-                .AsEnumerable() // Convert to IEnumerable to avoid expression tree issues
+                .AsEnumerable()
                 .Where(d => d.Type == "diagnosis" && d.ICPC2 == selectedICPC)
                 .GroupBy(d => d.ICD10)
                 .Select(g => g.First())
@@ -266,22 +211,25 @@ namespace Patients
                 .ToList();
 
             ICD10ListBox.DisplayMemberPath = "Display";
+
+            ICPC2ListBox.Visibility = Visibility.Collapsed;
+            icpc2DropdownOpen = false;
+            ICPC2ListBox.SelectedItem = null;
         }
 
         private void ICD10ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ICD10ListBox.SelectedItem is null) return;
 
-            var selected = ICD10ListBox.SelectedItem as dynamic; // Explicitly cast to dynamic
-            var selectedICD10 = selected?.Original?.ICD10; // Use null-conditional operator to avoid dynamic issues
+            var selected = ICD10ListBox.SelectedItem as dynamic;
+            var selectedICD10 = selected?.Original?.ICD10;
 
             if (selectedICD10 == null) return;
 
             ICD10SearchBox.Text = $"{selected.Original.ICD10} – {selected.Original.TextICD10}";
 
-            // Filter ICPC2 diagnoses to only those linked to the selected ICD10
             var linkedICPC2s = _context.Icpc2Icd10
-                .AsEnumerable() // Convert to IEnumerable to avoid expression tree issues
+                .AsEnumerable()
                 .Where(d => d.Type == "diagnosis" && d.ICD10 == selectedICD10)
                 .GroupBy(d => d.ICPC2)
                 .Select(g => g.First())
@@ -293,6 +241,10 @@ namespace Patients
                 .ToList();
 
             ICPC2ListBox.DisplayMemberPath = "Display";
+
+            ICPC2ListBox.Visibility = Visibility.Collapsed;
+            icpc2DropdownOpen = false;
+            ICPC2ListBox.SelectedItem = null;
         }
 
         private void ICPC2SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -304,5 +256,82 @@ namespace Patients
         {
             FilterICD10Diagnoses();
         }
+
+        private void ICPC2SearchBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!icpc2DropdownOpen)
+            {
+                ICPC2ListBox.Visibility = Visibility.Visible;
+                icpc2DropdownOpen = true;
+            }
+        }
+
+        //private void ICPC2SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        //{
+        //    Dispatcher.InvokeAsync(() =>
+        //    {
+        //        if (!ICPC2ListBox.IsKeyboardFocusWithin)
+        //        {
+        //            ICPC2ListBox.Visibility = Visibility.Collapsed;
+        //            icpc2DropdownOpen = false;
+        //        }
+        //    }, System.Windows.Threading.DispatcherPriority.Input);
+        //}
+
+
+        private void ICD10SearchBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!icd10DropdownOpen)
+            {
+                ICD10ListBox.Visibility = Visibility.Visible;
+                icd10DropdownOpen = true;
+            }
+        }
+
+        //private void ICD10SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        //{
+        //    Dispatcher.InvokeAsync(() =>
+        //    {
+        //        if (!ICD10ListBox.IsKeyboardFocusWithin)
+        //        {
+        //            ICD10ListBox.Visibility = Visibility.Collapsed;
+        //            icd10DropdownOpen = false;
+        //        }
+        //    }, System.Windows.Threading.DispatcherPriority.Input);
+        //}
+
+        private void MainGrid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Find the element clicked
+            DependencyObject clickedElement = Mouse.DirectlyOver as DependencyObject;
+
+            // If clicked outside ICPC2SearchBox and ICPC2ListBox
+            if (!IsDescendantOf(clickedElement, ICPC2SearchBox) &&
+                !IsDescendantOf(clickedElement, ICPC2ListBox))
+            {
+                ICPC2ListBox.Visibility = Visibility.Collapsed;
+                icpc2DropdownOpen = false;
+            }
+
+            // If clicked outside ICD10SearchBox and ICD10ListBox
+            if (!IsDescendantOf(clickedElement, ICD10SearchBox) &&
+                !IsDescendantOf(clickedElement, ICD10ListBox))
+            {
+                ICD10ListBox.Visibility = Visibility.Collapsed;
+                icd10DropdownOpen = false;
+            }
+        }
+
+        private bool IsDescendantOf(DependencyObject target, DependencyObject ancestor)
+        {
+            while (target != null)
+            {
+                if (target == ancestor)
+                    return true;
+                target = VisualTreeHelper.GetParent(target);
+            }
+            return false;
+        }
+
     }
 }
