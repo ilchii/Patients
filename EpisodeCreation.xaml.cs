@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Patients
 {
@@ -307,6 +308,94 @@ namespace Patients
             }
             return false;
         }
+
+
+        //private void ClinicalStatusBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    ClinicalStatusList.Visibility = Visibility.Visible;
+        //    e.Handled = true;
+        //}
+
+        //private void ClinicalStatusBox_LostFocus(object sender, RoutedEventArgs e)
+        //{
+        //    Dispatcher.InvokeAsync(() =>
+        //    {
+        //        if (!ClinicalStatusList.IsKeyboardFocusWithin)
+        //            ClinicalStatusList.Visibility = Visibility.Collapsed;
+        //    }, DispatcherPriority.Input);
+        //}
+
+        //private void ClinicalStatusList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (ClinicalStatusList.SelectedItem is ListBoxItem selected)
+        //    {
+        //        ClinicalStatusBox.Text = selected.Content.ToString();
+        //        ClinicalStatusList.Visibility = Visibility.Collapsed;
+        //        ClinicalStatusList.SelectedItem = null;
+        //    }
+        //}
+
+        private void Generic_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBox tb && tb.Tag is string listBoxName)
+            {
+                var listBox = FindName(listBoxName) as ListBox;
+                if (listBox != null)
+                {
+                    listBox.Visibility = Visibility.Visible;
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void Generic_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox tb && tb.Tag is string listBoxName)
+            {
+                Dispatcher.InvokeAsync(() =>
+                {
+                    if (isListBoxSelecting) return; // Prevent collapsing during selection
+
+                    var listBox = FindName(listBoxName) as ListBox;
+                    if (listBox != null && !listBox.IsKeyboardFocusWithin)
+                    {
+                        listBox.Visibility = Visibility.Collapsed;
+                    }
+                }, DispatcherPriority.Input);
+            }
+        }
+
+        private bool isListBoxSelecting = false;
+
+        private void Generic_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ListBox listBox && listBox.SelectedItem is ListBoxItem selectedItem)
+            {
+                isListBoxSelecting = true;
+
+                string selectedText = selectedItem.Content?.ToString();
+
+                var parentPanel = LogicalTreeHelper.GetParent(listBox) as Panel;
+                var matchingTextBox = parentPanel?.Children
+                    .OfType<TextBox>()
+                    .FirstOrDefault(tb => tb.Tag as string == listBox.Name);
+
+                if (matchingTextBox != null && !string.IsNullOrWhiteSpace(selectedText))
+                {
+                    matchingTextBox.Text = selectedText;
+                }
+
+                listBox.Visibility = Visibility.Collapsed;
+                listBox.SelectedItem = null;
+
+                Dispatcher.InvokeAsync(() => isListBoxSelecting = false, DispatcherPriority.Input);
+            }
+        }
+
+
+
+
+
 
     }
 }
