@@ -4,143 +4,250 @@
       xmlns:sys="clr-namespace:System;assembly=System.Runtime" 
       xmlns:local="clr-namespace:Patients"
       Title="EpisodeCreationPage">
-    <Grid Background="#F0FFF0" Margin="20" PreviewMouseDown="MainGrid_PreviewMouseDown">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid Background="#F0FFF0" Margin="20" PreviewMouseDown="MainGrid_PreviewMouseDown">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock x:Name="PatientName" FontSize="24" FontWeight="Bold"/>
-            <TextBlock x:Name="PatientId" FontStyle="Italic"/>
-            <TextBlock x:Name="AppointmentTime" Margin="0,10,0,0"/>
-            <TextBlock x:Name="PatientAge"/>
-            <TextBlock x:Name="PatientAddress"/>
+            <StackPanel Grid.Row="0" Margin="20">
+                <TextBlock x:Name="PatientName" FontSize="24" FontWeight="Bold"/>
+                <TextBlock x:Name="PatientId" FontStyle="Italic"/>
+                <TextBlock x:Name="AppointmentTime" Margin="0,10,0,0"/>
+                <TextBlock x:Name="PatientAge"/>
+                <TextBlock x:Name="PatientAddress"/>
 
-            <Button Content="← Back" Width="120" HorizontalAlignment="Left" Click="Back_Click"/>
-        </StackPanel>
+                <Button Content="← Back" Margin="0,30,0,0" Width="120" HorizontalAlignment="Left" Click="Back_Click"/>
+            </StackPanel>
 
-        <StackPanel Grid.Row="1">
-        <!-- Search box -->
-            <TextBox x:Name="SearchBox" Margin="0,0,0,10" 
-                     TextChanged="SearchBox_TextChanged"
+            <StackPanel Grid.Row="1" Margin="20">
+                <TextBlock Text="Введіть симтоми" FontWeight="Bold" Margin="20,10,0,5" FontSize="15" Foreground="#2E8B57"/>
+
+                <!-- Search box -->
+                <TextBox x:Name="SearchBox" Margin="0,0,0,10" 
+                     TextChanged="SearchBox_TextChanged" PreviewMouseDown="SymptomSearchBox_PreviewMouseDown"
                      Height="30" Padding="5" FontSize="14" Background="White" BorderBrush="#90EE90"/>
 
-            <!-- Symptoms list -->
-            <ListBox x:Name="SymptomsListBox" Grid.Row="1" Height="100" SelectionMode="Single"
-                     SelectionChanged="SymptomsListBox_SelectionChanged" BorderBrush="#90EE90"/>
+                <!-- Symptoms list -->
+                <ListBox x:Name="SymptomsListBox" Grid.Row="1" Height="100" SelectionMode="Single"
+                     SelectionChanged="SymptomsListBox_SelectionChanged" BorderBrush="#90EE90"
+                     Visibility="Collapsed"/>
 
-            <!-- Selected symptoms -->
-            <StackPanel Margin="0,20,0,0">
-                <TextBlock Text="Selected Symptoms:" FontWeight="Bold" FontSize="16" Foreground="#2E8B57"/>
-                <WrapPanel x:Name="SelectedSymptomsPanel" Margin="0,10,0,0" />
+                <!-- Selected symptoms -->
+                <StackPanel Margin="0,20,0,0">
+                    <TextBlock Text="Вибрані симптоми:" FontWeight="Bold" FontSize="16" Foreground="#2E8B57"/>
+                    <WrapPanel x:Name="SelectedSymptomsPanel" Margin="0,10,0,0" />
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
 
-        <!-- Diagnosis section -->
-        <Border Grid.Row="2" Margin="20" Background="#FFFFFF" CornerRadius="8" BorderBrush="#90EE90" BorderThickness="1">
-            <StackPanel Orientation="Vertical">
-                <!-- ICPC-2 Diagnosis -->
-                <TextBlock Text="Diagnosis (ICPC-2)" FontWeight="Bold" Margin="0,0,0,5" FontSize="15" Foreground="#2E8B57"/>
-                <Border BorderBrush="#90EE90" BorderThickness="1" CornerRadius="4" Background="White">
-                    <StackPanel>
-                        <TextBox x:Name="ICPC2SearchBox" Height="30" Padding="5" VerticalContentAlignment="Center"
+            <!-- Diagnosis section -->
+            <Border Grid.Row="2" Margin="20" Background="#FFFFFF" CornerRadius="8" BorderBrush="#90EE90" BorderThickness="1">
+                <StackPanel Orientation="Vertical">
+                    <!-- ICPC-2 Diagnosis -->
+                    <TextBlock Text="Diagnosis (ICPC-2)" FontWeight="Bold" Margin="20,10,0,5" FontSize="15" Foreground="#2E8B57"/>
+                    <Border BorderBrush="#90EE90" Margin="10,0,10,0" BorderThickness="1" CornerRadius="4" Background="White">
+                        <StackPanel>
+                            <TextBox x:Name="ICPC2SearchBox" Height="30" Padding="5" VerticalContentAlignment="Center"
                                  PreviewMouseDown="ICPC2SearchBox_PreviewMouseDown"
                                  TextChanged="ICPC2SearchBox_TextChanged"
                                  Background="White" BorderBrush="#90EE90"/>
-                        <ListBox x:Name="ICPC2ListBox" Visibility="Collapsed" MaxHeight="150"
+                            <ListBox x:Name="ICPC2ListBox" Visibility="Collapsed" MaxHeight="150"
                                  SelectionChanged="ICPC2ListBox_SelectionChanged"
                                  DisplayMemberPath="Display" BorderBrush="#90EE90"/>
-                    </StackPanel>
-                </Border>
+                        </StackPanel>
+                    </Border>
 
-                <!-- ICD-10 Diagnosis -->
-                <TextBlock Text="Diagnosis (ICD-10)" FontWeight="Bold" Margin="20,10,0,5" FontSize="15" Foreground="#2E8B57"/>
-                <Border BorderBrush="#90EE90" BorderThickness="1" CornerRadius="4" Background="White">
-                    <StackPanel>
-                        <TextBox x:Name="ICD10SearchBox" Height="30" Padding="5" VerticalContentAlignment="Center"
+                    <!-- ICD-10 Diagnosis -->
+                    <TextBlock Text="Diagnosis (ICD-10)" FontWeight="Bold" Margin="20,10,0,5" FontSize="15" Foreground="#2E8B57"/>
+                    <Border BorderBrush="#90EE90" Margin="10,0,10,0" BorderThickness="1" CornerRadius="4" Background="White">
+                        <StackPanel>
+                            <TextBox x:Name="ICD10SearchBox" Height="30" Padding="5" VerticalContentAlignment="Center"
                                  PreviewMouseDown="ICD10SearchBox_PreviewMouseDown"
                                  TextChanged="ICD10SearchBox_TextChanged"
                                  Background="White" BorderBrush="#90EE90"/>
-                        <ListBox x:Name="ICD10ListBox" Visibility="Collapsed" MaxHeight="150"
+                            <ListBox x:Name="ICD10ListBox" Visibility="Collapsed" MaxHeight="150"
                                  SelectionChanged="ICD10ListBox_SelectionChanged"
                                  DisplayMemberPath="Display" BorderBrush="#90EE90"/>
-                    </StackPanel>
-                </Border>
+                        </StackPanel>
+                    </Border>
 
-                <UniformGrid Columns="2" Margin="0,20,0,0">
+                    <UniformGrid Columns="2" Margin="0,20,0,0">
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Дата виявлення" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <DatePicker x:Name="DiscoveryDatePicker" SelectedDate="{x:Static sys:DateTime.Now}"
+                                    Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Клінічний статус" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <TextBox x:Name="ClinicalStatusBox"
+                                 Text="Активний" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="ClinicalStatusPopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+
+                            <Popup x:Name="ClinicalStatusPopup"
+                                PlacementTarget="{Binding ElementName=ClinicalStatusBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                                <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                    <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=ClinicalStatusBox, Path=ActualWidth}"
+                                         Tag="ClinicalStatusBox">
+                                        <ListBoxItem Content="Активний"/>
+                                        <ListBoxItem Content="Неактивний"/>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Статус достовірності" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <TextBox x:Name="ReliabilityStatusBox"
+                                 Text="Заключний" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="ReliabilityStatusPopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+
+                            <Popup x:Name="ReliabilityStatusPopup"
+                                PlacementTarget="{Binding ElementName=ReliabilityStatusBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                                <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                    <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=ReliabilityStatusBox, Path=ActualWidth}"
+                                         Tag="ReliabilityStatusBox">
+                                        <ListBoxItem Content="Заключний"/>
+                                        <ListBoxItem Content="Неперевірений"/>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Стадія захворювання" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <TextBox x:Name="DiseaseStageBox"
+                                 Text="Значення за замовчуванням" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="DiseaseStagePopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+
+                            <Popup x:Name="DiseaseStagePopup"
+                                PlacementTarget="{Binding ElementName=DiseaseStageBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                                <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                    <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=DiseaseStageBox, Path=ActualWidth}"
+                                         Tag="DiseaseStageBox">
+                                        <ListBoxItem Content="Значення за замовчуванням"/>
+                                        <ListBoxItem Content="Недостовірний"/>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Ступінь тяжкості стану" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <TextBox x:Name="ConditionSeverityBox"
+                                 Text="Важкий" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="ConditionSeverityPopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+
+                            <Popup x:Name="ConditionSeverityPopup"
+                                PlacementTarget="{Binding ElementName=ConditionSeverityBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                                <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                    <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=ConditionSeverityBox, Path=ActualWidth}"
+                                         Tag="ConditionSeverityBox">
+                                        <ListBoxItem Content="Важкий"/>
+                                        <ListBoxItem Content="Легкий"/>
+                                        <ListBoxItem Content="Середньої тяжкості"/>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+
+                        <StackPanel Margin="10">
+                            <TextBlock Text="Тип захворювання" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                            <TextBox x:Name="DiseaseTypeBox"
+                                 Text="гостре захворювання" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="DiseaseTypePopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+
+                            <Popup x:Name="DiseaseTypePopup"
+                                PlacementTarget="{Binding ElementName=DiseaseTypeBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                                <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                    <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=DiseaseTypeBox, Path=ActualWidth}"
+                                         Tag="DiseaseTypeBox">
+                                        <ListBoxItem Content="Важкий"/>
+                                        <ListBoxItem Content="Легкий"/>
+                                        <ListBoxItem Content="Середньої тяжкості"/>
+                                    </ListBox>
+                                </Border>
+                            </Popup>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="3" Margin="20" Background="White">
+                <StackPanel>
+                    <TextBlock Text="Назва епізоду" FontWeight="Bold" Margin="20,10,0,5" FontSize="15" Foreground="#2E8B57"/>
+                    <TextBox x:Name="EpisodeNameBox" Margin="10,10,10,0" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"/>
+                </StackPanel>
+
+                <UniformGrid Columns="2">
                     <StackPanel Margin="10">
-                        <TextBlock Text="Дата виявлення" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <DatePicker x:Name="DiscoveryDatePicker" SelectedDate="{x:Static sys:DateTime.Now}"
+                        <TextBlock Text="Дата створення епізоду" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                        <DatePicker x:Name="EpisodeStartDatePicker" SelectedDate="{x:Static sys:DateTime.Now}"
                                     Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"/>
                     </StackPanel>
 
                     <StackPanel Margin="10">
-                        <TextBlock Text="Клінічний статус" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <TextBox x:Name="ClinicalStatusBox" Text="Активний" IsReadOnly="True"
-                                 Tag="ClinicalStatusList" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"
-                                 PreviewMouseDown="Generic_PreviewMouseDown" LostFocus="Generic_LostFocus"/>
-                        <ListBox x:Name="ClinicalStatusList" Visibility="Collapsed" BorderBrush="#90EE90"
-                                 SelectionChanged="Generic_SelectionChanged">
-                            <ListBoxItem Content="Активний"/>
-                            <ListBoxItem Content="Неактивний"/>
-                        </ListBox>
-                    </StackPanel>
+                        <TextBlock Text="Тип епізоду" FontWeight="SemiBold" Foreground="#2E8B57"/>
+                        <TextBox x:Name="EpisodeTypeBox"
+                                 Text="Лікування" IsReadOnly="True" Focusable="False"
+                                 Cursor="Hand" Height="30" FontSize="14"
+                                 Background="White" BorderBrush="#90EE90"
+                                 Tag="EpisodeTypePopup"
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
 
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Статус достовірності" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <TextBox x:Name="ReliabilityStatusBox" Text="Заключний" IsReadOnly="True"
-                                 Tag="ReliabilityStatusList" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"
-                                 PreviewMouseDown="Generic_PreviewMouseDown" LostFocus="Generic_LostFocus"/>
-                        <ListBox x:Name="ReliabilityStatusList" Visibility="Collapsed" BorderBrush="#90EE90"
-                                 SelectionChanged="Generic_SelectionChanged">
-                            <ListBoxItem Content="Заключний"/>
-                            <ListBoxItem Content="Неперевірений"/>
-                        </ListBox>
-                    </StackPanel>
-
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Стадія захворювання" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <TextBox x:Name="DiseaseStageBox" Text="Значення за замовчуванням" IsReadOnly="True"
-                                 Tag="DiseaseStageList" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"
-                                 PreviewMouseDown="Generic_PreviewMouseDown" LostFocus="Generic_LostFocus"/>
-                        <ListBox x:Name="DiseaseStageList" Visibility="Collapsed" BorderBrush="#90EE90"
-                                 SelectionChanged="Generic_SelectionChanged">
-                            <ListBoxItem Content="Значення за замовчуванням"/>
-                            <ListBoxItem Content="Недостовірний"/>
-                        </ListBox>
-                    </StackPanel>
-
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Ступінь тяжкості стану" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <TextBox x:Name="ConditionSeverityBox" Text="Важкий" IsReadOnly="True"
-                                 Tag="ConditionSeverityList" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"
-                                 PreviewMouseDown="Generic_PreviewMouseDown" LostFocus="Generic_LostFocus"/>
-                        <ListBox x:Name="ConditionSeverityList" Visibility="Collapsed" BorderBrush="#90EE90"
-                                 SelectionChanged="Generic_SelectionChanged">
-                            <ListBoxItem Content="Важкий"/>
-                            <ListBoxItem Content="Легкий"/>
-                            <ListBoxItem Content="Середньої тяжкості"/>
-                        </ListBox>
-                    </StackPanel>
-
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Тип захворювання" FontWeight="SemiBold" Foreground="#2E8B57"/>
-                        <TextBox x:Name="DiseaseTypeBox" Text="гостре захворювання" IsReadOnly="True"
-                                 Tag="DiseaseTypeList" Height="30" FontSize="14" Background="White" BorderBrush="#90EE90"
-                                 PreviewMouseDown="Generic_PreviewMouseDown" LostFocus="Generic_LostFocus"/>
-                        <ListBox x:Name="DiseaseTypeList" Visibility="Collapsed" BorderBrush="#90EE90"
-                                 SelectionChanged="Generic_SelectionChanged">
-                            <ListBoxItem Content="гостре захворювання"/>
-                            <ListBoxItem Content="вперше зареєстроване хронічне"/>
-                            <ListBoxItem Content="раніше відоме хронічне"/>
-                            <ListBoxItem Content="загострення хронічного"/>
-                            <ListBoxItem Content="інше"/>
-                        </ListBox>
+                        <Popup x:Name="EpisodeTypePopup"
+                                PlacementTarget="{Binding ElementName=EpisodeTypeBox}"
+                                Placement="Bottom" StaysOpen="True" AllowsTransparency="True"
+                                PopupAnimation="Fade">
+                            <Border Background="White" BorderBrush="#90EE90" BorderThickness="1">
+                                <ListBox SelectionChanged="PopupList_SelectionChanged"
+                                         Width="{Binding ElementName=EpisodeTypeBox, Path=ActualWidth}"
+                                         Tag="EpisodeTypeBox">
+                                    <ListBoxItem Content="Важкий"/>
+                                    <ListBoxItem Content="Легкий"/>
+                                    <ListBoxItem Content="Середньої тяжкості"/>
+                                </ListBox>
+                            </Border>
+                        </Popup>
                     </StackPanel>
                 </UniformGrid>
             </StackPanel>
-        </Border>
-    </Grid>
+
+            <Button Content="Зберегти епізод" Margin="20,20,20,0" Height="40" FontSize="16" Background="#90EE90" Foreground="White"
+                    Click="SaveEpisodeButton_Click" HorizontalAlignment="Center"/>
+        </Grid>
+    </ScrollViewer>
 </Page>

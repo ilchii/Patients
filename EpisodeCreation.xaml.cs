@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -127,6 +128,11 @@ namespace Patients
 
             SymptomsListBox.DisplayMemberPath = "Display";
 
+        }
+
+        private void SymptomSearchBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            SymptomsListBox.Visibility = Visibility.Visible;
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -261,6 +267,8 @@ namespace Patients
             ICPC2ListBox.Visibility = Visibility.Collapsed;
             icpc2DropdownOpen = false;
             ICPC2ListBox.SelectedItem = null;
+
+            EpisodeNameBox.Text = selected.Display;
         }
 
         private void ICD10ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -341,6 +349,13 @@ namespace Patients
                 ICD10ListBox.Visibility = Visibility.Collapsed;
                 icd10DropdownOpen = false;
             }
+
+            // If clicked outside ICD10SearchBox and ICD10ListBox
+            if (!IsDescendantOf(clickedElement, SearchBox) &&
+                !IsDescendantOf(clickedElement, SymptomsListBox))
+            {
+                SymptomsListBox.Visibility = Visibility.Collapsed;
+            }
         }
 
         private bool IsDescendantOf(DependencyObject target, DependencyObject ancestor)
@@ -355,62 +370,39 @@ namespace Patients
         }
 
 
-        private void Generic_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void TogglePopup(object sender, MouseButtonEventArgs e)
         {
-            if (sender is TextBox tb && tb.Tag is string listBoxName)
+            if (sender is TextBox tb && tb.Tag is string popupName)
             {
-                var listBox = FindName(listBoxName) as ListBox;
-                if (listBox != null)
+                var popup = FindName(popupName) as Popup;
+                if (popup != null)
                 {
-                    listBox.Visibility = Visibility.Visible;
+                    popup.IsOpen = !popup.IsOpen;
                     e.Handled = true;
                 }
             }
         }
 
-        private void Generic_LostFocus(object sender, RoutedEventArgs e)
+        private void PopupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is TextBox tb && tb.Tag is string listBoxName)
+            if (sender is ListBox lb && lb.SelectedItem is ListBoxItem selectedItem && lb.Tag is string textBoxName)
             {
-                Dispatcher.InvokeAsync(() =>
+                var tb = FindName(textBoxName) as TextBox;
+                if (tb != null)
                 {
-                    if (isListBoxSelecting) return; // Prevent collapsing during selection
+                    tb.Text = selectedItem.Content.ToString();
+                    var popup = LogicalTreeHelper.GetParent(lb);
+                    while (popup != null && !(popup is Popup))
+                        popup = LogicalTreeHelper.GetParent(popup);
 
-                    var listBox = FindName(listBoxName) as ListBox;
-                    if (listBox != null && !listBox.IsKeyboardFocusWithin)
-                    {
-                        listBox.Visibility = Visibility.Collapsed;
-                    }
-                }, DispatcherPriority.Input);
-            }
-        }
+                    if (popup is Popup p)
+                        p.IsOpen = false;
 
-        private bool isListBoxSelecting = false;
-
-        private void Generic_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is ListBox listBox && listBox.SelectedItem is ListBoxItem selectedItem)
-            {
-                isListBoxSelecting = true;
-
-                string selectedText = selectedItem.Content?.ToString();
-
-                var parentPanel = LogicalTreeHelper.GetParent(listBox) as Panel;
-                var matchingTextBox = parentPanel?.Children
-                    .OfType<TextBox>()
-                    .FirstOrDefault(tb => tb.Tag as string == listBox.Name);
-
-                if (matchingTextBox != null && !string.IsNullOrWhiteSpace(selectedText))
-                {
-                    matchingTextBox.Text = selectedText;
+                    lb.SelectedItem = null; // reset selection
                 }
-
-                listBox.Visibility = Visibility.Collapsed;
-                listBox.SelectedItem = null;
-
-                Dispatcher.InvokeAsync(() => isListBoxSelecting = false, DispatcherPriority.Input);
             }
         }
+
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {

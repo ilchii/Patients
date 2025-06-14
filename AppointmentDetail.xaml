@@ -11,7 +11,7 @@
         </Grid.RowDefinitions>
 
         <!-- Patient Info Section -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Margin="20">
             <TextBlock x:Name="PatientName" FontSize="24" FontWeight="Bold"/>
             <TextBlock x:Name="PatientId" FontStyle="Italic"/>
             <TextBlock x:Name="AppointmentTime" Margin="0,10,0,0"/>
@@ -20,7 +20,7 @@
         </StackPanel>
 
         <!-- Navigation buttons -->
-        <DockPanel Grid.Row="1" Margin="0,10,0,10">
+        <DockPanel Grid.Row="1" Margin="20,10,20,20">
             <Button Content="← Back" Width="120" DockPanel.Dock="Left" Click="Back_Click"/>
             <Button Content="Close Appointment" Width="150" DockPanel.Dock="Right" Click="CloseAppointment_Click"/>
         </DockPanel>
