@@ -7,28 +7,39 @@
     <Grid Background="#F0FFF0" Margin="20" PreviewMouseDown="MainGrid_PreviewMouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock x:Name="PatientName" FontSize="24" FontWeight="Bold"/>
+            <TextBlock x:Name="PatientId" FontStyle="Italic"/>
+            <TextBlock x:Name="AppointmentTime" Margin="0,10,0,0"/>
+            <TextBlock x:Name="PatientAge"/>
+            <TextBlock x:Name="PatientAddress"/>
+
+            <Button Content="← Back" Width="120" HorizontalAlignment="Left" Click="Back_Click"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
         <!-- Search box -->
-        <TextBox x:Name="SearchBox" Margin="0,0,0,10" 
-                 TextChanged="SearchBox_TextChanged"
-                 Height="30" Padding="5" FontSize="14" Background="White" BorderBrush="#90EE90"/>
+            <TextBox x:Name="SearchBox" Margin="0,0,0,10" 
+                     TextChanged="SearchBox_TextChanged"
+                     Height="30" Padding="5" FontSize="14" Background="White" BorderBrush="#90EE90"/>
 
-        <!-- Symptoms list -->
-        <ListBox x:Name="SymptomsListBox" Grid.Row="1" Height="100" SelectionMode="Single"
-                 SelectionChanged="SymptomsListBox_SelectionChanged" BorderBrush="#90EE90"/>
+            <!-- Symptoms list -->
+            <ListBox x:Name="SymptomsListBox" Grid.Row="1" Height="100" SelectionMode="Single"
+                     SelectionChanged="SymptomsListBox_SelectionChanged" BorderBrush="#90EE90"/>
 
-        <!-- Selected symptoms -->
-        <StackPanel Grid.Row="2" Margin="0,20,0,0">
-            <TextBlock Text="Selected Symptoms:" FontWeight="Bold" FontSize="16" Foreground="#2E8B57"/>
-            <WrapPanel x:Name="SelectedSymptomsPanel" Margin="0,10,0,0" />
+            <!-- Selected symptoms -->
+            <StackPanel Margin="0,20,0,0">
+                <TextBlock Text="Selected Symptoms:" FontWeight="Bold" FontSize="16" Foreground="#2E8B57"/>
+                <WrapPanel x:Name="SelectedSymptomsPanel" Margin="0,10,0,0" />
+            </StackPanel>
         </StackPanel>
 
         <!-- Diagnosis section -->
-        <Border Grid.Row="3" Margin="20" Background="#FFFFFF" CornerRadius="8" BorderBrush="#90EE90" BorderThickness="1">
+        <Border Grid.Row="2" Margin="20" Background="#FFFFFF" CornerRadius="8" BorderBrush="#90EE90" BorderThickness="1">
             <StackPanel Orientation="Vertical">
                 <!-- ICPC-2 Diagnosis -->
                 <TextBlock Text="Diagnosis (ICPC-2)" FontWeight="Bold" Margin="0,0,0,5" FontSize="15" Foreground="#2E8B57"/>

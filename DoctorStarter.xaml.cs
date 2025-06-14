@@ -237,7 +237,8 @@ namespace Patients
 
         private void StartAppointment(Appointment appointment)
         {
-            var page = new AppointmentDetailPage(appointment, MainFrame);
+            var page = new AppointmentDetailPage(appointment, MainFrame, ContentColumn1);
+            ContentColumn1.Visibility = Visibility.Collapsed;
             MainFrame.Visibility = Visibility.Visible; // Show the frame
             MainFrame.Navigate(page);
         }

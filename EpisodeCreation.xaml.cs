@@ -15,6 +15,12 @@ namespace Patients
     {
         private readonly AppDbContext _context = new AppDbContext();
 
+        private readonly int _appointmentId;
+        private Appointment _appointment;
+        private Patient _patient;
+        private Frame _parentFrame;
+        private Grid _contentColumn1;
+
         private List<Icpc2Icd10> allSymptoms = new();
         private List<Icpc2Icd10> filteredSymptoms = new();
         private List<Icpc2Icd10> selectedSymptoms = new();
@@ -26,10 +32,49 @@ namespace Patients
         private bool icd10DropdownOpen = false;
 
 
-        public EpisodeCreationPage(Appointment appointment, Frame parentFrame)
+        public EpisodeCreationPage(Appointment appointment, Frame parentFrame, Grid contentColumn1)
         {
             InitializeComponent();
+            _appointmentId = appointment.Id;
+            _parentFrame = parentFrame;
+            _contentColumn1 = contentColumn1;
+            LoadAppointmentDetails();
             LoadData();
+        }
+
+        private void LoadAppointmentDetails()
+        {
+            using (var context = new AppDbContext())
+            {
+                _appointment = context.Appointments
+                    .Include(a => a.Patient)
+                    .FirstOrDefault(a => a.Id == _appointmentId);
+                if (_appointment != null)
+                {
+                    _patient = _appointment.Patient;
+                    DisplayAppointmentDetails();
+                }
+                else
+                {
+                    MessageBox.Show("Appointment not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void DisplayAppointmentDetails()
+        {
+            if (_appointment != null && _patient != null)
+            {
+                PatientName.Text = $"{_patient.Surname} {_patient.Name} {_patient.Patronym}";
+                PatientId.Text = $"ID: {_patient.Id}";
+                AppointmentTime.Text = $"{_appointment.Date:HH:mm} - {_appointment.Date.AddMinutes(_appointment.DurationMinutes):HH:mm}";
+                //AppointmentNotes.Text = _appointment.Notes ?? "No notes available.";
+                PatientAge.Text = $"Age: {_patient.Age}";
+            }
+            else
+            {
+                MessageBox.Show("Appointment or patient details are missing.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void LoadData()
@@ -310,31 +355,6 @@ namespace Patients
         }
 
 
-        //private void ClinicalStatusBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    ClinicalStatusList.Visibility = Visibility.Visible;
-        //    e.Handled = true;
-        //}
-
-        //private void ClinicalStatusBox_LostFocus(object sender, RoutedEventArgs e)
-        //{
-        //    Dispatcher.InvokeAsync(() =>
-        //    {
-        //        if (!ClinicalStatusList.IsKeyboardFocusWithin)
-        //            ClinicalStatusList.Visibility = Visibility.Collapsed;
-        //    }, DispatcherPriority.Input);
-        //}
-
-        //private void ClinicalStatusList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (ClinicalStatusList.SelectedItem is ListBoxItem selected)
-        //    {
-        //        ClinicalStatusBox.Text = selected.Content.ToString();
-        //        ClinicalStatusList.Visibility = Visibility.Collapsed;
-        //        ClinicalStatusList.SelectedItem = null;
-        //    }
-        //}
-
         private void Generic_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is TextBox tb && tb.Tag is string listBoxName)
@@ -392,10 +412,11 @@ namespace Patients
             }
         }
 
-
-
-
-
-
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            // Create the original page again and show it
+            var appointmentDetailPage = new AppointmentDetailPage(_appointment, _parentFrame, _contentColumn1);
+            _parentFrame.Content = appointmentDetailPage;
+        }
     }
 }

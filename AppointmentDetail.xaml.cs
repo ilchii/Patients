@@ -27,18 +27,21 @@ namespace Patients
         private Appointment _appointment;
         private Patient _patient;
         private Frame _parentFrame;
+        private Grid _contentColumn1;
 
-        public AppointmentDetailPage(Appointment appointment, Frame parentFrame)
+        public AppointmentDetailPage(Appointment appointment, Frame parentFrame, Grid contentColumn1)
         {
             InitializeComponent();
             _appointmentId = appointment.Id;
             _parentFrame = parentFrame;
+            _contentColumn1 = contentColumn1;
             LoadAppointmentDetails();
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
             _parentFrame.Visibility = Visibility.Collapsed;
+            _contentColumn1.Visibility = Visibility.Visible;
             _parentFrame.Content = null;
         }
 
@@ -48,7 +51,7 @@ namespace Patients
             this.Visibility = Visibility.Collapsed;
 
             // Show EpisodeCreation page
-            var episodeCreationPage = new EpisodeCreationPage(_appointment, _parentFrame);
+            var episodeCreationPage = new EpisodeCreationPage(_appointment, _parentFrame, _contentColumn1);
             _parentFrame.Content = episodeCreationPage;
             _parentFrame.Visibility = Visibility.Visible;
         }
