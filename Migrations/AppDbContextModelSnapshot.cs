@@ -120,10 +120,49 @@ namespace Patients.Migrations
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ClinicalStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ConditionSeverity")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DiagnosisICD10")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DiagnosisICPC2")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("DiscoveryDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DiseaseStage")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DiseaseType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EpisodeType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ReliabilityStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Symptoms")
                         .IsRequired()
                         .HasColumnType("longtext");
 

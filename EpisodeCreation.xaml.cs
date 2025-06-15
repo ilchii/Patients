@@ -410,5 +410,43 @@ namespace Patients
             var appointmentDetailPage = new AppointmentDetailPage(_appointment, _parentFrame, _contentColumn1);
             _parentFrame.Content = appointmentDetailPage;
         }
+
+        private void SaveEpisodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(EpisodeNameBox.Text))
+            {
+                MessageBox.Show("Episode name cannot be empty.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (selectedSymptoms.Count == 0)
+            {
+                MessageBox.Show("Please select at least one symptom.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            var episode = new Episode
+            {
+                Title = EpisodeNameBox.Text,
+                AppointmentId = _appointmentId,
+                CreatedAt = EpisodeStartDatePicker.DisplayDate,
+                EpisodeType = EpisodeTypeBox.Text,
+
+                Symptoms = string.Join(", ", selectedSymptoms.Select(s => s.ICPC2)),
+                DiagnosisICPC2 = ICPC2SearchBox.Text,
+                DiagnosisICD10 = ICD10SearchBox.Text,
+
+                DiscoveryDate = DiscoveryDatePicker.DisplayDate,
+                ClinicalStatus = ClinicalStatusBox.Text,
+                ReliabilityStatus = ReliabilityStatusBox.Text,
+                DiseaseStage = DiseaseStageBox.Text,
+                ConditionSeverity = ConditionSeverityBox.Text,
+                DiseaseType = DiseaseTypeBox.Text,
+
+            };
+            _context.Episodes.Add(episode);
+            _context.SaveChanges();
+            MessageBox.Show("Episode saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Navigate back to appointment details
+            Back_Click(sender, e);
+        }
     }
 }

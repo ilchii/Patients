@@ -11,6 +11,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="20">
@@ -88,7 +89,7 @@
                                  Cursor="Hand" Height="30" FontSize="14"
                                  Background="White" BorderBrush="#90EE90"
                                  Tag="ClinicalStatusPopup"
-                                 PreviewMouseLeftButtonDown="TogglePopup"/>
+                                 PreviewMouseLeftButtonDown="TogglePopup" TextChanged="ClinicalStatusBox_TextChanged"/>
 
                             <Popup x:Name="ClinicalStatusPopup"
                                 PlacementTarget="{Binding ElementName=ClinicalStatusBox}"
@@ -246,7 +247,7 @@
                 </UniformGrid>
             </StackPanel>
 
-            <Button Content="Зберегти епізод" Margin="20,20,20,0" Height="40" FontSize="16" Background="#90EE90" Foreground="White"
+            <Button Grid.Row="4" Content="Зберегти епізод" Margin="20" Height="40" FontSize="16" Background="#90EE90" Foreground="White"
                     Click="SaveEpisodeButton_Click" HorizontalAlignment="Center"/>
         </Grid>
     </ScrollViewer>
