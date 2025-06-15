@@ -26,35 +26,26 @@ namespace Patients
         private readonly int _appointmentId;
         private Appointment _appointment;
         private Patient _patient;
-        private Frame _parentFrame;
-        private Grid _contentColumn1;
 
-        public AppointmentDetailPage(Appointment appointment, Frame parentFrame, Grid contentColumn1)
+        private Frame MainFrame => Application.Current.MainWindow.FindName("MainFrame") as Frame;
+
+        public AppointmentDetailPage(Appointment appointment)
         {
             InitializeComponent();
             _appointmentId = appointment.Id;
-            _parentFrame = parentFrame;
-            _contentColumn1 = contentColumn1;
             LoadAppointmentDetails();
             LoadEpisodes(_appointmentId);
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            _parentFrame.Visibility = Visibility.Collapsed;
-            _contentColumn1.Visibility = Visibility.Visible;
-            _parentFrame.Content = null;
+            MainFrame.Navigate(new WorkingSpace());
         }
 
         private void AddEpisode_Click(object sender, RoutedEventArgs e)
         {
-            // Hide this page
-            this.Visibility = Visibility.Collapsed;
-
-            // Show EpisodeCreation page
-            var episodeCreationPage = new EpisodeCreationPage(_appointment, _parentFrame, _contentColumn1);
-            _parentFrame.Content = episodeCreationPage;
-            _parentFrame.Visibility = Visibility.Visible;
+            var episodeCreationPage = new EpisodeCreationPage(_appointment);
+            MainFrame.Navigate(episodeCreationPage);
         }
 
         private void LoadAppointmentDetails()
@@ -106,7 +97,7 @@ namespace Patients
                 }
 
                 MessageBox.Show("Appointment closed successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                NavigationService.GoBack(); // Navigate back after closing the appointment
+                Back_Click(sender, e);
             }
             else
             {

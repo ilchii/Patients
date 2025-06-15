@@ -19,8 +19,6 @@ namespace Patients
         private readonly int _appointmentId;
         private Appointment _appointment;
         private Patient _patient;
-        private Frame _parentFrame;
-        private Grid _contentColumn1;
 
         private List<Icpc2Icd10> allSymptoms = new();
         private List<Icpc2Icd10> filteredSymptoms = new();
@@ -32,13 +30,12 @@ namespace Patients
         private bool icpc2DropdownOpen = false;
         private bool icd10DropdownOpen = false;
 
+        private Frame MainFrame => Application.Current.MainWindow.FindName("MainFrame") as Frame;
 
-        public EpisodeCreationPage(Appointment appointment, Frame parentFrame, Grid contentColumn1)
+        public EpisodeCreationPage(Appointment appointment)
         {
             InitializeComponent();
             _appointmentId = appointment.Id;
-            _parentFrame = parentFrame;
-            _contentColumn1 = contentColumn1;
             LoadAppointmentDetails();
             LoadData();
         }
@@ -369,7 +366,6 @@ namespace Patients
             return false;
         }
 
-
         private void TogglePopup(object sender, MouseButtonEventArgs e)
         {
             if (sender is TextBox tb && tb.Tag is string popupName)
@@ -406,9 +402,8 @@ namespace Patients
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            // Create the original page again and show it
-            var appointmentDetailPage = new AppointmentDetailPage(_appointment, _parentFrame, _contentColumn1);
-            _parentFrame.Content = appointmentDetailPage;
+            var appointmentDetailPage = new AppointmentDetailPage(_appointment);
+            MainFrame.Navigate(appointmentDetailPage);
         }
 
         private void SaveEpisodeButton_Click(object sender, RoutedEventArgs e)

@@ -9,6 +9,26 @@
       Title="MyPatients">
 
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Search -->
+            <RowDefinition Height="*"/>
+            <!-- Appointments List -->
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Мої Пацієнти" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="10"/>
+            <TextBlock Text="Пошукова стрічка" FontSize="16" FontWeight="Bold" Margin="50,0,50,0"/>
+
+            <TextBox x:Name="SearchBox" Margin="50,10,50,0" 
+                         Height="30" 
+                         TextChanged="SearchBox_TextChanged"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="50,10,50,0">
+            <StackPanel x:Name="PatientPanel" Margin="20">
+                <!-- Appointments will be added dynamically -->
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

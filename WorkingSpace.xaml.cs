@@ -12,9 +12,8 @@ namespace Patients
 {
     public partial class WorkingSpace : Page
     {
-        private readonly AppDbContext _context = new AppDbContext();
         private List<Appointment> _todayAppointments;
-        Frame MainFrame => Application.Current.MainWindow.FindName("MainFrame") as Frame;
+        private Frame MainFrame => Application.Current.MainWindow.FindName("MainFrame") as Frame;
 
 
         public WorkingSpace()
@@ -203,23 +202,6 @@ namespace Patients
             DisplayAppointments(filtered);
         }
 
-
-        private void WorkingSpace_Click(object sender, RoutedEventArgs e)
-        {
-            // You’re already here, optionally refresh
-        }
-
-        private void MyPatients_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("My Patients page is not implemented yet.");
-        }
-
-        private void CalendarButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Doctor's calendar page will be implemented soon.");
-        }
-
-
         private int CalculateAge(DateTime birthDate)
         {
             var today = DateTime.Today;
@@ -230,8 +212,7 @@ namespace Patients
 
         private void StartAppointment(Appointment appointment)
         {
-            Grid contentColumn1 = null;
-            var page = new AppointmentDetailPage(appointment, MainFrame, contentColumn1);
+            var page = new AppointmentDetailPage(appointment);
             MainFrame.Navigate(page);
         }
 
