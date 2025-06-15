@@ -1,0 +1,34 @@
+﻿<Page x:Class="Patients.WorkingSpace"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Patients"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="WorkingSpace">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Search -->
+            <RowDefinition Height="*"/>
+            <!-- Appointments List -->
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Робочий Кабінет" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="10"/>
+            <TextBlock Text="Пошукова стрічка" FontSize="16" FontWeight="Bold" Margin="50,0,50,0"/>
+
+            <TextBox x:Name="SearchBox" Margin="50,10,50,0" 
+                         Height="30" 
+                         TextChanged="SearchBox_TextChanged"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="50,10,50,0">
+            <StackPanel x:Name="AppointmentsPanel" Margin="20">
+                <!-- Appointments will be added dynamically -->
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

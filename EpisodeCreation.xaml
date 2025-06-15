@@ -89,7 +89,7 @@
                                  Cursor="Hand" Height="30" FontSize="14"
                                  Background="White" BorderBrush="#90EE90"
                                  Tag="ClinicalStatusPopup"
-                                 PreviewMouseLeftButtonDown="TogglePopup" TextChanged="ClinicalStatusBox_TextChanged"/>
+                                 PreviewMouseLeftButtonDown="TogglePopup"/>
 
                             <Popup x:Name="ClinicalStatusPopup"
                                 PlacementTarget="{Binding ElementName=ClinicalStatusBox}"

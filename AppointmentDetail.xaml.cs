@@ -36,6 +36,7 @@ namespace Patients
             _parentFrame = parentFrame;
             _contentColumn1 = contentColumn1;
             LoadAppointmentDetails();
+            LoadEpisodes(_appointmentId);
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -113,6 +114,67 @@ namespace Patients
             }
         }
 
+        private void LoadEpisodes(int appointmentId)
+        {
+            EpisodesPanel.Children.Clear();
+
+            var episodes = _context.Episodes
+                .Where(e => e.AppointmentId == appointmentId)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToList();
+
+            foreach (var episode in episodes)
+            {
+                var border = new Border
+                {
+                    BorderBrush = new SolidColorBrush(Colors.LightGreen),
+                    BorderThickness = new Thickness(1),
+                    Margin = new Thickness(0, 0, 0, 10),
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(10),
+                    Background = Brushes.White
+                };
+
+                var stack = new StackPanel();
+
+                stack.Children.Add(new TextBlock
+                {
+                    Text = episode.Title,
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 16,
+                    Foreground = Brushes.Black
+                });
+
+                stack.Children.Add(new TextBlock
+                {
+                    Text = $"Тип: {episode.EpisodeType}",
+                    Foreground = Brushes.DarkSlateGray
+                });
+
+                stack.Children.Add(new TextBlock
+                {
+                    Text = $"ICPC-2: {episode.DiagnosisICPC2}",
+                    Foreground = Brushes.SlateGray
+                });
+
+                stack.Children.Add(new TextBlock
+                {
+                    Text = $"ICD-10: {episode.DiagnosisICD10}",
+                    Foreground = Brushes.SlateGray
+                });
+
+                stack.Children.Add(new TextBlock
+                {
+                    Text = $"Створено: {episode.CreatedAt:g}",
+                    FontStyle = FontStyles.Italic,
+                    Foreground = Brushes.Gray,
+                    Margin = new Thickness(0, 5, 0, 0)
+                });
+
+                border.Child = stack;
+                EpisodesPanel.Children.Add(border);
+            }
+        }
 
     }
 }
