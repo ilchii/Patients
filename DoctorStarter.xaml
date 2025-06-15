@@ -12,9 +12,9 @@
 
         <!-- Sidebar -->
         <StackPanel x:Name="Sidebar" Background="#EEE" Width="60" Grid.Column="0">
-            <Button x:Name="WorkingSpace" Content="👨‍⚕️" Margin="10" Click="WorkingSpace_Click" />
-            <Button x:Name="MyPatients" Content="😷" Margin="10" Click="MyPatients_Click"/>
-            <Button x:Name="CalendarButton" Content="📅" Margin="10" Click="CalendarButton_Click"/>
+            <Button x:Name="WorkingSpace" Content="👨‍⚕️" Height="60" FontSize="30" Click="WorkingSpace_Click" />
+            <Button x:Name="MyPatients" Content="😷" Height="60" FontSize="30" Click="MyPatients_Click"/>
+            <Button x:Name="CalendarButton" Content="📅" Height="60" FontSize="30" Click="CalendarButton_Click"/>
         </StackPanel>
 
 
