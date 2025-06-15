@@ -5,10 +5,158 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Patients"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="500" d:DesignWidth="1000"
       Title="DoctorCalendar">
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <!-- Main content -->
+            <ColumnDefinition Width="300"/>
+            <!-- Appointment detail panel -->
+        </Grid.ColumnDefinitions>
 
+        <!-- Main Calendar Area -->
+        <Grid Grid.Column="0" Margin="100">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Navigation -->
+                <RowDefinition Height="*"/>
+                <!-- Calendar section (scrollable) -->
+            </Grid.RowDefinitions>
+
+            <!-- Selected Doctor Header -->
+            <TextBlock Grid.Row="0"
+           x:Name="SelectedDoctorHeader"
+           FontSize="16"
+           FontWeight="Bold"
+           Margin="0,0,0,10"
+           Text="Select a doctor to see their schedule" />
+
+            <!-- Navigation controls -->
+            <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Refresh button -->
+                <Button Content="🔄"
+            Width="24"
+            Height="24"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            Click="RefreshButton_Click"
+            Margin="5"/>
+
+                <!-- Center: Week navigation -->
+                <StackPanel Grid.Column="1"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                    <Button Content="← Previous Week" Click="PreviousWeek_Click" Margin="5"/>
+                    <TextBlock x:Name="WeekLabel" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Margin="5"/>
+                    <Button Content="Next Week →" Click="NextWeek_Click" Margin="5"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Calendar section (header + scrollable schedule) -->
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Fixed header row -->
+                    <RowDefinition Height="*"/>
+                    <!-- Scrollable rows -->
+                </Grid.RowDefinitions>
+
+                <!-- Fixed Header Row (Days) -->
+                <Grid x:Name="ScheduleHeaderGrid"
+                Grid.Row="0"
+                ShowGridLines="True"
+                Margin="0,0,17,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+
+                <!-- Scrollable Time Slots -->
+                <ScrollViewer Grid.Row="1"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+                    <Grid x:Name="ScheduleGrid" ShowGridLines="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Time rows will be added dynamically -->
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+
+        <!-- Appointment Detail Panel -->
+        <StackPanel Grid.Column="1"
+        x:Name="AppointmentDetailPanel"
+        Background="#F8F8F8"
+        Width="300"
+        HorizontalAlignment="Left"
+        Margin="0">
+
+            <!-- Default message shown initially -->
+            <StackPanel x:Name="EmptyMessagePanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="Select a cell to create/edit appointment"
+               FontStyle="Italic"
+               FontSize="14"
+               Foreground="Gray"
+               TextAlignment="Center"
+               Margin="10"/>
+            </StackPanel>
+
+            <!-- New appointment form -->
+            <StackPanel x:Name="NewAppointmentPanel" Visibility="Collapsed">
+                <TextBlock Text="New Appointment" FontWeight="Bold" FontSize="16" Margin="10"/>
+                <TextBlock Text="Patient Name" Margin="10,0,10,0"/>
+
+                <ComboBox x:Name="PatientComboBox"
+                DisplayMemberPath="FullName"
+                SelectedValuePath="Id"
+                Width="200"
+                Margin="5"
+                SelectionChanged="PatientComboBox_SelectionChanged"/>
+                <TextBlock x:Name="PatientDetailsTextBlock"
+                Margin="5"
+                Text="Select a patient to see details."/>
+
+
+                <TextBlock Text="Notes" Margin="10,10,10,0"/>
+                <TextBox x:Name="NotesBox" Margin="10" Height="60" AcceptsReturn="True"/>
+                <Button Content="Save Appointment" Click="SaveAppointment_Click" Width="150" Margin="10"/>
+            </StackPanel>
+
+            <!-- Existing appointment view -->
+            <StackPanel x:Name="ExistingAppointmentPanel" Visibility="Collapsed">
+                <TextBlock Text="Existing Appointment" FontWeight="Bold" FontSize="16" Margin="10"/>
+                <TextBlock x:Name="ExistingPatientTextBlock" Margin="10"/>
+                <Button Content="Delete Appointment" Click="DeleteAppointment_Click" Width="150" Margin="10"/>
+            </StackPanel>
+
+        </StackPanel>
     </Grid>
 </Page>
